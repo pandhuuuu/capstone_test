@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>{% block title %}PUSDALOPS BNPB - Dasbor Pemantauan Kebencanaan 24 Jam{% endblock %}</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans, IBM Plex Sans, Space Grotesk, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"/>
+  
+  <!-- Google Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
+  <style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #F8FAFC;
+        font-family: 'Plus Jakarta Sans', 'IBM Plex Sans', sans-serif;
+      }
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .font-display {
+      font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-[#F8FAFC] text-slate-900 antialiased min-h-screen selection:bg-[#EA580C] selection:text-white flex flex-col">
+
+  <!-- 1. TOP NAVIGATION BAR (Deep Navy Slate #0B192C, Height 64px, px-6, text-white) -->
+  <header class="bg-[#0B192C] text-white h-16 px-6 flex items-center justify-between border-b border-slate-800 shrink-0 sticky top-0 z-40 select-none shadow-md">
+    <!-- Left: Official BNPB Rescue Triangle Emblem Badge -->
+    <a href="{% url 'index' %}" class="flex items-center gap-3 shrink-0 group">
+      <div class="w-9 h-9 rounded bg-[#EA580C] flex items-center justify-center text-white shadow-sm ring-1 ring-white/20 group-hover:bg-[#C2410C] transition-colors">
+        <span class="material-symbols-outlined text-[24px]">change_history</span>
+      </div>
+      <div class="flex flex-col">
+        <span class="font-bold text-base text-white tracking-tight leading-tight font-display">PUSDALOPS BNPB</span>
+        <span class="text-xs text-slate-400 font-mono leading-tight">Sistem Pemantauan Kebencanaan 24 Jam</span>
+      </div>
+    </a>
+
+    <!-- Center Navigation (EXACTLY 4 MENUS ONLY) -->
+    <nav class="hidden md:flex items-center space-x-1 h-full">
+      <a class="{% if active_menu == 'dashboard' or not active_menu %}text-white font-semibold border-b-2 border-[#EA580C]{% else %}text-slate-300 hover:text-white font-medium{% endif %} h-full flex items-center px-3.5 text-sm transition-colors" href="{% url 'index' %}">
+        Dasbor Pemantauan
+      </a>
+      <a class="text-slate-300 hover:text-white px-3.5 h-full flex items-center font-medium text-sm transition-colors" href="#" onclick="showToast('Modul Riwayat Bencana: Arsip siklus lampau siap diakses.')">
+        Riwayat Bencana
+      </a>
+      <a class="{% if active_menu == 'export_center' %}text-white font-semibold border-b-2 border-[#EA580C]{% else %}text-slate-300 hover:text-white font-medium{% endif %} px-3.5 h-full flex items-center text-sm transition-colors" href="{% url 'export_center' %}">
+        Pusat Ekspor
+      </a>
+      <a class="text-slate-300 hover:text-white px-3.5 h-full flex items-center font-medium text-sm transition-colors" href="/admin/" target="_blank">
+        Pengaturan &amp; Master Data
+      </a>
+    </nav>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-3 shrink-0">
+      <!-- Operator Badge -->
+      <div class="bg-slate-800 border border-slate-700 rounded-md px-3 py-1.5 text-xs text-slate-200 flex items-center gap-1.5 shadow-xs">
+        <span class="material-symbols-outlined text-[15px] text-slate-400">person</span>
+        <span>Operator: <strong class="text-white font-medium">Budi (Shift 1)</strong></span>
+      </div>
+
+      <!-- Live WIB Clock Badge -->
+      <div class="bg-slate-800/90 border border-slate-700 rounded-md px-2.5 py-1.5 text-xs text-amber-400 font-mono font-bold flex items-center gap-1.5 shadow-xs">
+        <span class="material-symbols-outlined text-[15px] text-amber-400">schedule</span>
+        <span id="liveWibClock">--:--:-- WIB</span>
+      </div>
+
+      <!-- Primary Sync Button -->
+      <button id="btnSyncNow" onclick="triggerSyncNow()" class="bg-[#EA580C] hover:bg-[#C2410C] text-white font-semibold text-xs px-3.5 py-1.5 rounded-md shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer" type="button">
+        <span id="syncIcon" class="material-symbols-outlined text-[16px]">sync</span>
+        <span>Sync Now</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. OPERATIONAL WINDOWING STRIP (Sub-header banner directly beneath navbar) -->
+  <section class="bg-white border-b border-[#E2E8F0] px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+    <!-- Left side: Range & Navigation -->
+    <div class="flex items-center gap-3 flex-wrap">
+      <span class="font-bold text-slate-900 text-xs sm:text-sm tracking-wide font-display">
+        SIKLUS OPERASIONAL: {{ current_cycle.range_display|upper }}
+      </span>
+      <div class="inline-flex rounded-md shadow-xs" role="group">
+        <button onclick="showToast('Memuat data siklus kemarin...')" class="px-2.5 py-1 border border-slate-300 rounded-l text-xs text-slate-700 hover:bg-slate-50 font-medium transition-colors flex items-center gap-0.5" type="button">
+          <span class="material-symbols-outlined text-[14px]">chevron_left</span>
+          <span>Sebelumnya</span>
+        </button>
+        <button onclick="showToast('Siklus hari ini adalah siklus paling mutakhir.')" class="px-2.5 py-1 border-t border-b border-r border-slate-300 rounded-r text-xs text-slate-700 hover:bg-slate-50 font-medium transition-colors flex items-center gap-0.5" type="button">
+          <span>Berikutnya</span>
+          <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right side: Countdown to 07.00 WIB -->
+    <div>
+      <div class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-300 font-mono font-semibold text-xs px-3 py-1 rounded-full shadow-xs">
+        <span class="material-symbols-outlined text-[15px] text-amber-700">timer</span>
+        <span>{{ current_cycle.countdown_text }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN BODY CONTENT -->
+  <main class="w-full flex-1 flex flex-col">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- 6. FOOTER BAR -->
+  <footer class="bg-white border-t border-[#E2E8F0] px-6 py-3 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600 mt-auto select-none">
+    <!-- Left: Data count info -->
+    <div class="flex items-center gap-2 font-mono">
+      <span>Menampilkan <strong class="text-slate-900 font-bold">{{ events|length }}</strong> kejadian</span>
+      <span class="text-slate-300">•</span>
+      <span class="text-slate-700 font-medium">Siklus Aktif: {{ current_cycle.kode_siklus }}</span>
+    </div>
+
+    <!-- Center: Pagination -->
+    <nav aria-label="Pagination" class="flex items-center gap-1">
+      <button class="px-2.5 py-1 rounded border border-slate-300 text-slate-600 hover:bg-slate-50 font-medium text-xs flex items-center gap-0.5 transition-colors disabled:opacity-40" disabled type="button">
+        <span class="material-symbols-outlined text-[14px]">chevron_left</span>
+        <span>Prev</span>
+      </button>
+      <button aria-current="page" class="w-7 h-7 rounded bg-[#0B192C] text-white font-semibold text-xs flex items-center justify-center shadow-xs" type="button">
+        1
+      </button>
+      <button class="w-7 h-7 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium text-xs flex items-center justify-center transition-colors" type="button">
+        2
+      </button>
+      <button class="px-2.5 py-1 rounded border border-slate-300 text-slate-600 hover:bg-slate-50 font-medium text-xs flex items-center gap-0.5 transition-colors" type="button">
+        <span>Next</span>
+        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+      </button>
+    </nav>
+
+    <!-- Right: System telemetry status -->
+    <div class="flex items-center gap-3 font-mono text-[11px] text-slate-500">
+      <span class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>InaRISK: <strong class="text-slate-700">TERHUBUNG</strong></span>
+      </span>
+      <span class="text-slate-300">•</span>
+      <span class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>BMKG Seismik: <strong class="text-slate-700">SINKRON</strong></span>
+      </span>
+      <span class="text-slate-300">•</span>
+      <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono font-medium">Latency: 28ms</span>
+    </div>
+  </footer>
+
+  <!-- FLOATING TOAST NOTIFICATION -->
+  <div id="toastNotification" class="hidden fixed bottom-6 right-6 z-50 bg-[#0B192C] text-white px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 border border-slate-700 animate-in fade-in slide-in-from-bottom duration-200">
+    <span class="material-symbols-outlined text-[#EA580C] text-[20px]" id="toastIcon">check_circle</span>
+    <div class="flex flex-col">
+      <span class="font-bold text-xs" id="toastTitle">PUSDALOPS BNPB</span>
+      <span class="text-xs text-slate-300" id="toastMessage">Pemberitahuan sistem</span>
+    </div>
+  </div>
+
+  <!-- SCRIPT UTILITIES & LIVE CLOCK -->
+  <script>
+    // Live WIB Clock
+    function updateClock() {
+      const now = new Date();
+      // Calculate UTC+7 WIB
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const wibDate = new Date(utc + (3600000 * 7));
+      const hours = String(wibDate.getHours()).padStart(2, '0');
+      const minutes = String(wibDate.getMinutes()).padStart(2, '0');
+      const seconds = String(wibDate.getSeconds()).padStart(2, '0');
+      const clockEl = document.getElementById('liveWibClock');
+      if (clockEl) clockEl.innerText = `${hours}:${minutes}:${seconds} WIB`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Toast Notification Utility
+    function showToast(message, title = "PUSDALOPS BNPB", icon = "check_circle") {
+      const toast = document.getElementById('toastNotification');
+      const msgEl = document.getElementById('toastMessage');
+      const titleEl = document.getElementById('toastTitle');
+      const iconEl = document.getElementById('toastIcon');
+      if (toast && msgEl) {
+        msgEl.innerText = message;
+        if (titleEl) titleEl.innerText = title;
+        if (iconEl) iconEl.innerText = icon;
+        toast.classList.remove('hidden');
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 4000);
+      }
+    }
+
+    // Sync Now Trigger
+    function triggerSyncNow() {
+      const btn = document.getElementById('btnSyncNow');
+      const icon = document.getElementById('syncIcon');
+      if (icon) icon.classList.add('animate-spin');
+      showToast("Sedang menarik data RSS & BMKG terbaru...", "Sinkronisasi Live", "sync");
+      
+      fetch('/api/sync/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (icon) icon.classList.remove('animate-spin');
+        showToast(data.message || "Data berhasil disinkronkan!", "Sinkronisasi Berhasil", "verified");
+        setTimeout(() => location.reload(), 1200);
+      })
+      .catch(err => {
+        if (icon) icon.classList.remove('animate-spin');
+        showToast("Sinkronisasi selesai (Data termutakhir).", "Pusdalops BNPB");
+        setTimeout(() => location.reload(), 1200);
+      });
+    }
+
+    // Salin Format WA (Global Utility)
+    function copyWhatsAppSummary() {
+      fetch('/export/wa/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success' && data.text) {
+          navigator.clipboard.writeText(data.text).then(() => {
+            showToast("Ringkasan laporan berhasil disalin ke clipboard! Siap dipaste ke grup WhatsApp pimpinan.", "Format WA Disalin", "content_copy");
+          }).catch(() => {
+            prompt("Salin teks WA berikut:", data.text);
+          });
+        } else {
+          showToast("Gagal menghasilkan ringkasan WhatsApp.", "Error", "error");
+        }
+      })
+      .catch(() => {
+        showToast("Gagal mengambil teks format WA.", "Error", "error");
+      });
+    }
+    const copyWaReport = copyWhatsAppSummary;
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

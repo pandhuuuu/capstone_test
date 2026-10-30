@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PUSDALOPS BNPB - Dasbor Pemantauan</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #F8FAFC;
+      }
+      body {
+        font-family: 'IBM Plex Sans', sans-serif;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#F8FAFC] text-slate-900 antialiased min-h-screen selection:bg-[#EA580C] selection:text-white flex flex-col">
+<!-- 1. TOP NAVIGATION BAR (Deep Navy Slate #0B192C, height 64px, px-6, text-white) -->
+<header class="bg-[#0B192C] text-white h-16 px-6 flex items-center justify-between border-b border-slate-800 shrink-0 sticky top-0 z-50">
+<!-- Left: Official BNPB orange rescue triangle emblem badge -->
+<div class="flex items-center gap-3 shrink-0">
+<div class="w-9 h-9 rounded bg-[#EA580C] flex items-center justify-center text-white shadow-sm ring-1 ring-white/20">
+<span class="material-symbols-outlined text-[24px]">change_history</span>
+</div>
+<div class="flex flex-col">
+<span class="font-bold text-base text-white tracking-tight leading-tight">PUSDALOPS BNPB</span>
+<span class="text-xs text-slate-400 font-mono leading-tight">Sistem Pemantauan Kebencanaan 24 Jam</span>
+</div>
+</div>
+<!-- Center Navigation (EXACTLY 4 MENUS ONLY) -->
+<nav class="hidden md:flex items-center space-x-2 h-full">
+<a class="text-white font-semibold border-b-2 border-[#EA580C] h-full flex items-center px-3 text-sm" href="#">
+        Dasbor Pemantauan
+      </a>
+<a class="text-slate-300 hover:text-white px-3 h-full flex items-center font-medium text-sm transition-colors" href="#">
+        Riwayat Bencana
+      </a>
+<a class="text-slate-300 hover:text-white px-3 h-full flex items-center font-medium text-sm transition-colors" href="#">
+        Pusat Ekspor
+      </a>
+<a class="text-slate-300 hover:text-white px-3 h-full flex items-center font-medium text-sm transition-colors" href="#">
+        Pengaturan &amp; Master Data
+      </a>
+</nav>
+<!-- Right Controls -->
+<div class="flex items-center gap-3 shrink-0">
+<!-- Operator badge -->
+<div class="bg-slate-800 border border-slate-700 rounded-md px-3 py-1.5 text-xs text-slate-200 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-slate-400">person</span>
+<span>Operator: <strong class="text-white font-medium">Budi (Shift 1)</strong></span>
+</div>
+<!-- Live WIB clock badge -->
+<div class="bg-slate-800/80 border border-slate-700 rounded-md px-2.5 py-1.5 text-xs text-amber-400 font-mono font-bold flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-amber-400">schedule</span>
+<span>13:45 WIB</span>
+</div>
+<!-- Primary sync button -->
+<button class="bg-[#EA580C] hover:bg-orange-600 text-white font-semibold text-xs px-3.5 py-1.5 rounded-md shadow-sm flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] animate-spin" style="animation-duration: 6s;">sync</span>
+<span>Sync Now</span>
+</button>
+</div>
+</header>
+<!-- 2. OPERATIONAL WINDOWING STRIP (Sub-header banner directly beneath navbar) -->
+<section class="bg-white border-b border-[#E2E8F0] px-6 py-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+<!-- Left side -->
+<div class="flex items-center gap-3">
+<span class="font-bold text-slate-900 text-sm tracking-wide">
+        SIKLUS OPERASIONAL: 09 OKTOBER 2026 (07.00 WIB) - 10 OKTOBER 2026 (07.00 WIB)
+      </span>
+<div class="inline-flex rounded-md shadow-xs" role="group">
+<button class="px-2.5 py-1 border border-slate-300 rounded-l text-xs text-slate-700 hover:bg-slate-50 font-medium transition-colors flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined text-[14px]">chevron_left</span>
+<span>Sebelumnya</span>
+</button>
+<button class="px-2.5 py-1 border-t border-b border-r border-slate-300 rounded-r text-xs text-slate-700 hover:bg-slate-50 font-medium transition-colors flex items-center gap-0.5" type="button">
+<span>Berikutnya</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Right side -->
+<div>
+<div class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-300 font-mono font-semibold text-xs px-3 py-1 rounded-full shadow-xs">
+<span class="material-symbols-outlined text-[15px] text-amber-700">timer</span>
+<span>06j 18m menuju cut-off 07.00 WIB</span>
+</div>
+</div>
+</section>
+<!-- MAIN BODY / MONITORING VIEW CONTAINER -->
+<main class="w-full flex-1 flex flex-col">
+<!-- 3. STATUS CONTROL & ACTION BAR (Above the data table) -->
+<div class="px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+<!-- Left side: 4 horizontal segmented tabs with pill counters -->
+<div class="flex flex-wrap items-center gap-2">
+<!-- Tab 1 (Active) -->
+<button class="bg-white border border-slate-300 font-semibold text-slate-900 shadow-xs px-4 py-2 rounded-lg flex items-center gap-2 text-sm transition-colors" type="button">
+<span>Belum Terverifikasi (Pending)</span>
+<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full text-xs font-mono">14</span>
+</button>
+<!-- Tab 2 -->
+<button class="text-slate-600 hover:text-slate-900 px-3 py-2 font-medium text-sm flex items-center gap-2 transition-colors" type="button">
+<span>Terverifikasi</span>
+<span class="bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full text-xs font-mono">6</span>
+</button>
+<!-- Tab 3 -->
+<button class="text-slate-600 hover:text-slate-900 px-3 py-2 font-medium text-sm flex items-center gap-2 transition-colors" type="button">
+<span>Hoaks</span>
+<span class="bg-red-100 text-red-800 font-semibold px-2 py-0.5 rounded-full text-xs font-mono">2</span>
+</button>
+<!-- Tab 4 -->
+<button class="text-slate-600 hover:text-slate-900 px-3 py-2 font-medium text-sm flex items-center gap-2 transition-colors" type="button">
+<span>Semua Data</span>
+<span class="bg-slate-100 text-slate-700 font-semibold px-2 py-0.5 rounded-full text-xs font-mono">22</span>
+</button>
+</div>
+<!-- Right side: Top-level action buttons -->
+<div class="flex items-center flex-wrap gap-2.5">
+<button class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-semibold text-xs px-3.5 py-2 rounded-lg shadow-xs flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-slate-600">add</span>
+<span>Tambah Kejadian Manual</span>
+</button>
+<button class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 font-semibold text-xs px-3.5 py-2 rounded-lg shadow-xs flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-emerald-600">content_copy</span>
+<span>Salin Format WA</span>
+</button>
+<button class="bg-[#EA580C] hover:bg-orange-600 text-white font-semibold text-xs px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">description</span>
+<span>Unduh Word (.docx) Bagian A</span>
+</button>
+</div>
+</div>
+<!-- 4. FILTER & SEARCH BAR -->
+<div class="px-6 pb-3 flex flex-wrap items-center justify-between gap-3">
+<!-- Search input -->
+<div class="relative w-full sm:w-96">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</span>
+<input class="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 shadow-xs" placeholder="Cari kata kunci, wilayah, nama bencana..." type="search"/>
+</div>
+<!-- Filter dropdowns & Auto-refresh -->
+<div class="flex flex-wrap items-center gap-2.5">
+<!-- Dropdown 1: Provinsi -->
+<select class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer shadow-xs">
+<option>Semua Provinsi (38)</option>
+<option>Jawa Barat</option>
+<option>Papua Tengah</option>
+<option>Sumatera Barat</option>
+<option>DKI Jakarta</option>
+<option>Jawa Tengah</option>
+<option>Jawa Timur</option>
+</select>
+<!-- Dropdown 2: Jenis Bencana -->
+<select class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer shadow-xs">
+<option>Semua Jenis Bencana</option>
+<option>Banjir</option>
+<option>Karhutla</option>
+<option>Tanah Longsor</option>
+<option>Gempa Bumi / Tsunami</option>
+</select>
+<!-- Dropdown 3: Tingkat Urgensi -->
+<select class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer shadow-xs">
+<option>Tingkat Urgensi</option>
+<option>Level 3 - Tanggap Darurat</option>
+<option>Level 2 - Siaga Darurat</option>
+<option>Level 1 - Waspada</option>
+</select>
+<!-- Auto-refresh badge -->
+<div class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-700 flex items-center gap-2 shadow-xs">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="font-medium">Auto-refresh: 30s</span>
+</div>
+</div>
+</div>
+<!-- 5. HIGH-DENSITY MONITORING DATA GRID -->
+<div class="px-6 pb-6 flex-1">
+<div class="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-xs">
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse min-w-[1200px]">
+<!-- Table Header -->
+<thead>
+<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
+<th class="py-3 px-4 w-36 font-semibold" scope="col">WAKTU (WIB)</th>
+<th class="py-3 px-4 w-56 font-semibold" scope="col">WILAYAH KEMENDAGRI</th>
+<th class="py-3 px-4 w-44 font-semibold" scope="col">JENIS BENCANA</th>
+<th class="py-3 px-4 font-semibold" scope="col">RINGKASAN &amp; RUJUKAN MEDIA</th>
+<th class="py-3 px-4 w-36 font-semibold" scope="col">STATUS</th>
+<th class="py-3 px-4 w-48 font-semibold text-right" scope="col">AKSI</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-xs">
+<!-- ROW 1: Banjir Dayeuhkolot -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<!-- Col 1: WAKTU -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col">
+<span class="font-mono font-bold text-slate-900 text-xs">09/10/2026</span>
+<span class="font-mono text-slate-600 text-[11px]">13:45 WIB</span>
+<span class="mt-1 inline-block font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded w-fit">
+                      15m lalu
+                    </span>
+</div>
+</td>
+<!-- Col 2: WILAYAH KEMENDAGRI -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1 font-mono text-[10px] text-slate-500">
+<span>Kode Kemendagri:</span>
+<span class="font-bold text-slate-700 bg-slate-100 px-1 py-0.5 rounded">32.04.11</span>
+</div>
+<div class="text-xs text-slate-700 leading-relaxed">
+<span class="text-slate-500">Jawa Barat</span> &gt; 
+                      <span class="text-slate-500">Kab. Bandung</span> &gt; 
+                      <strong class="text-slate-900 font-semibold">Kec. Dayeuhkolot</strong>
+</div>
+</div>
+</td>
+<!-- Col 3: JENIS BENCANA -->
+<td class="py-3 px-4 align-top">
+<span class="bg-blue-100 text-blue-800 border border-blue-200 font-bold text-xs px-2.5 py-1 rounded-md inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">water_drop</span>
+<span>BANJIR</span>
+</span>
+</td>
+<!-- Col 4: RINGKASAN & RUJUKAN MEDIA -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col gap-1">
+<a class="text-[#2563EB] font-semibold hover:underline text-sm leading-snug" href="#">
+                      Banjir Luapan Citarum Rendam Ratusan Rumah di Dayeuhkolot
+                    </a>
+<p class="text-slate-600 text-xs line-clamp-2 leading-relaxed">
+                      Tinggi muka air mencapai 80-150 cm akibat hujan deras berdurasi 4 jam di hulu sungai. Akses jalan terputus, 450 jiwa mengungsi di kantor desa.
+                    </p>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-slate-100 text-slate-700 border border-slate-200 font-medium text-[11px] px-2 py-0.5 rounded inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-slate-500">newspaper</span>
+<span>Detikcom (Lead)</span>
+</span>
+<span class="text-slate-500 text-[11px] font-medium">+2 Portal</span>
+</div>
+</div>
+</td>
+<!-- Col 5: STATUS -->
+<td class="py-3 px-4 align-top">
+<select class="bg-amber-50 text-amber-800 border border-amber-300 rounded-md font-semibold text-xs py-1 px-2.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500">
+<option selected="">Pending ▼</option>
+<option>Terverifikasi</option>
+<option>Hoaks</option>
+</select>
+</td>
+<!-- Col 6: AKSI -->
+<td class="py-3 px-4 align-top text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 text-xs px-2.5 py-1.5 rounded font-medium shadow-xs transition-colors" type="button">
+                      🔗 Merge
+                    </button>
+<button class="bg-[#EA580C] hover:bg-orange-600 text-white text-xs px-3 py-1.5 rounded font-semibold flex items-center gap-1 shadow-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">edit_note</span>
+<span>Edit &amp; Verifikasi</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 2: Karhutla Nabire -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<!-- Col 1: WAKTU -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col">
+<span class="font-mono font-bold text-slate-900 text-xs">09/10/2026</span>
+<span class="font-mono text-slate-600 text-[11px]">11:20 WIB</span>
+<span class="mt-1 inline-block font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded w-fit">
+                      2j 40m lalu
+                    </span>
+</div>
+</td>
+<!-- Col 2: WILAYAH KEMENDAGRI -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1 font-mono text-[10px] text-slate-500">
+<span>Kode Kemendagri:</span>
+<span class="font-bold text-slate-700 bg-slate-100 px-1 py-0.5 rounded">94.01.01</span>
+</div>
+<div class="text-xs text-slate-700 leading-relaxed">
+<span class="text-slate-500">Papua Tengah</span> &gt; 
+                      <span class="text-slate-500">Kab. Nabire</span> &gt; 
+                      <strong class="text-slate-900 font-semibold">Distrik Nabire</strong>
+</div>
+</div>
+</td>
+<!-- Col 3: JENIS BENCANA -->
+<td class="py-3 px-4 align-top">
+<span class="bg-orange-100 text-orange-800 border border-orange-200 font-bold text-xs px-2.5 py-1 rounded-md inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">local_fire_department</span>
+<span>KARHUTLA</span>
+</span>
+</td>
+<!-- Col 4: RINGKASAN & RUJUKAN MEDIA -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center flex-wrap gap-1 mb-0.5">
+<span class="bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-2 py-0.5 rounded mr-1">
+                        🚨 ISU BANTUAN
+                      </span>
+<a class="text-[#2563EB] font-semibold hover:underline text-sm leading-snug" href="#">
+                        Karhutla 172 Ha Lahan Gambut, Warga Keluhkan Bantuan Masker Terlambat
+                      </a>
+</div>
+<p class="text-slate-600 text-xs line-clamp-2 leading-relaxed">
+                      Kabut asap mulai mengganggu jarak pandang di pesisir Nabire hingga di bawah 400 meter. Kebutuhan mendesak: 5.000 masker N95 &amp; tangki air portable.
+                    </p>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-slate-100 text-slate-700 border border-slate-200 font-medium text-[11px] px-2 py-0.5 rounded inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-slate-500">campaign</span>
+<span>Antara News (Lead)</span>
+</span>
+</div>
+</div>
+</td>
+<!-- Col 5: STATUS -->
+<td class="py-3 px-4 align-top">
+<select class="bg-amber-50 text-amber-800 border border-amber-300 rounded-md font-semibold text-xs py-1 px-2.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500">
+<option selected="">Pending ▼</option>
+<option>Terverifikasi</option>
+<option>Hoaks</option>
+</select>
+</td>
+<!-- Col 6: AKSI -->
+<td class="py-3 px-4 align-top text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 text-xs px-2.5 py-1.5 rounded font-medium shadow-xs transition-colors" type="button">
+                      🔗 Merge
+                    </button>
+<button class="bg-[#EA580C] hover:bg-orange-600 text-white text-xs px-3 py-1.5 rounded font-semibold flex items-center gap-1 shadow-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">edit_note</span>
+<span>Edit &amp; Verifikasi</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 3: Longsor Agam Kelok 44 -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<!-- Col 1: WAKTU -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col">
+<span class="font-mono font-bold text-slate-900 text-xs">09/10/2026</span>
+<span class="font-mono text-slate-600 text-[11px]">09:15 WIB</span>
+<span class="mt-1 inline-block font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded w-fit">
+                      5j 27m lalu
+                    </span>
+</div>
+</td>
+<!-- Col 2: WILAYAH KEMENDAGRI -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1 font-mono text-[10px] text-slate-500">
+<span>Kode Kemendagri:</span>
+<span class="font-bold text-slate-700 bg-slate-100 px-1 py-0.5 rounded">13.06.04</span>
+</div>
+<div class="text-xs text-slate-700 leading-relaxed">
+<span class="text-slate-500">Sumatera Barat</span> &gt; 
+                      <span class="text-slate-500">Kab. Agam</span> &gt; 
+                      <strong class="text-slate-900 font-semibold">Kec. Tanjung Raya</strong>
+</div>
+</div>
+</td>
+<!-- Col 3: JENIS BENCANA -->
+<td class="py-3 px-4 align-top">
+<span class="bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs px-2.5 py-1 rounded-md inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">landslide</span>
+<span>TANAH LONGSOR</span>
+</span>
+</td>
+<!-- Col 4: RINGKASAN & RUJUKAN MEDIA -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col gap-1">
+<a class="text-[#2563EB] font-semibold hover:underline text-sm leading-snug" href="#">
+                      Material Longsor Tutup Badan Jalan Kelok 44, Tim TRC Bersihkan Jalur
+                    </a>
+<p class="text-slate-600 text-xs line-clamp-2 leading-relaxed">
+                      Tebing setinggi 12 meter runtuh menutupi tikungan ke-17. Dua alat berat loader dikerahkan dari posko Maninjau. Arus dialihkan via Pariaman.
+                    </p>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-slate-100 text-slate-700 border border-slate-200 font-medium text-[11px] px-2 py-0.5 rounded inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-slate-500">feed</span>
+<span>Padang Ekspres (Lead)</span>
+</span>
+</div>
+</div>
+</td>
+<!-- Col 5: STATUS -->
+<td class="py-3 px-4 align-top">
+<select class="bg-amber-50 text-amber-800 border border-amber-300 rounded-md font-semibold text-xs py-1 px-2.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500">
+<option selected="">Pending ▼</option>
+<option>Terverifikasi</option>
+<option>Hoaks</option>
+</select>
+</td>
+<!-- Col 6: AKSI -->
+<td class="py-3 px-4 align-top text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 text-xs px-2.5 py-1.5 rounded font-medium shadow-xs transition-colors" type="button">
+                      🔗 Merge
+                    </button>
+<button class="bg-[#EA580C] hover:bg-orange-600 text-white text-xs px-3 py-1.5 rounded font-semibold flex items-center gap-1 shadow-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">edit_note</span>
+<span>Edit &amp; Verifikasi</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 4: Disinformasi Hoaks Tsunami Jakarta -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<!-- Col 1: WAKTU -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col">
+<span class="font-mono font-bold text-slate-900 text-xs">09/10/2026</span>
+<span class="font-mono text-slate-600 text-[11px]">08:30 WIB</span>
+<span class="mt-1 inline-block font-mono text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded w-fit">
+                      6j 15m lalu
+                    </span>
+</div>
+</td>
+<!-- Col 2: WILAYAH KEMENDAGRI -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1 font-mono text-[10px] text-slate-500">
+<span>Kode Kemendagri:</span>
+<span class="font-bold text-slate-700 bg-slate-100 px-1 py-0.5 rounded">31.72.01</span>
+</div>
+<div class="text-xs text-slate-700 leading-relaxed">
+<span class="text-slate-500">DKI Jakarta</span> &gt; 
+                      <span class="text-slate-500">Jakarta Utara</span> &gt; 
+                      <strong class="text-slate-900 font-semibold">Kec. Penjaringan</strong>
+</div>
+</div>
+</td>
+<!-- Col 3: JENIS BENCANA -->
+<td class="py-3 px-4 align-top">
+<span class="bg-purple-100 text-purple-800 border border-purple-200 font-bold text-xs px-2.5 py-1 rounded-md inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">waves</span>
+<span>GEMPA BUMI / TSUNAMI</span>
+</span>
+</td>
+<!-- Col 4: RINGKASAN & RUJUKAN MEDIA -->
+<td class="py-3 px-4 align-top">
+<div class="flex flex-col gap-1">
+<div class="flex items-center flex-wrap gap-1 mb-0.5">
+<span class="bg-red-100 text-red-700 border border-red-200 text-xs font-bold px-2 py-0.5 rounded mr-1">
+                        🚨 DISINFORMASI PUBLIK
+                      </span>
+<a class="text-[#2563EB] font-semibold hover:underline text-sm leading-snug" href="#">
+                        Beredar Video Bernarasi Tsunami Teluk Jakarta - Hasil Cek Fakta BMKG Nihil Aktivitas Seismik
+                      </a>
+</div>
+<p class="text-slate-600 text-xs line-clamp-2 leading-relaxed">
+                      Potongan video gelombang tinggi di pelabuhan adalah arsip tahun 2021. BMKG &amp; InaRISK konfirmasi nihil anomali sensor pasut.
+                    </p>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-slate-100 text-slate-700 border border-slate-200 font-medium text-[11px] px-2 py-0.5 rounded inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-slate-500">share</span>
+<span>TikTok Viral &amp; WAG Terbuka</span>
+</span>
+</div>
+</div>
+</td>
+<!-- Col 5: STATUS -->
+<td class="py-3 px-4 align-top">
+<select class="bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold text-xs py-1 px-2.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-red-500">
+<option>Pending ▼</option>
+<option>Terverifikasi</option>
+<option selected="">Hoaks ▼</option>
+</select>
+</td>
+<!-- Col 6: AKSI -->
+<td class="py-3 px-4 align-top text-right">
+<div class="flex items-center justify-end gap-1.5">
+<button class="border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 text-xs px-2.5 py-1.5 rounded font-medium shadow-xs transition-colors" type="button">
+                      🔗 Merge
+                    </button>
+<button class="bg-[#EA580C] hover:bg-orange-600 text-white text-xs px-3 py-1.5 rounded font-semibold flex items-center gap-1 shadow-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]">edit_note</span>
+<span>Edit &amp; Verifikasi</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- 6. FOOTER BAR (Clean, high-density bottom bar) -->
+<footer class="bg-white border-t border-[#E2E8F0] px-6 py-3 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600 mt-auto">
+<!-- Left: Data count info -->
+<div class="flex items-center gap-2 font-mono">
+<span>Menampilkan <strong class="text-slate-900 font-bold">1 - 4</strong> dari <strong class="text-slate-900 font-bold">14</strong> data pending</span>
+<span class="text-slate-300">•</span>
+<span class="text-slate-700 font-medium">Total Siklus: 22 Kejadian</span>
+</div>
+<!-- Center: Pagination -->
+<nav aria-label="Pagination" class="flex items-center gap-1">
+<button class="px-2.5 py-1 rounded border border-slate-300 text-slate-600 hover:bg-slate-50 font-medium text-xs flex items-center gap-0.5 transition-colors disabled:opacity-40" disabled="" type="button">
+<span class="material-symbols-outlined text-[14px]">chevron_left</span>
+<span>Prev</span>
+</button>
+<button aria-current="page" class="w-7 h-7 rounded bg-[#0B192C] text-white font-semibold text-xs flex items-center justify-center shadow-xs" type="button">
+        1
+      </button>
+<button class="w-7 h-7 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium text-xs flex items-center justify-center transition-colors" type="button">
+        2
+      </button>
+<button class="w-7 h-7 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium text-xs flex items-center justify-center transition-colors" type="button">
+        3
+      </button>
+<button class="w-7 h-7 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium text-xs flex items-center justify-center transition-colors" type="button">
+        4
+      </button>
+<button class="px-2.5 py-1 rounded border border-slate-300 text-slate-600 hover:bg-slate-50 font-medium text-xs flex items-center gap-0.5 transition-colors" type="button">
+<span>Next</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</nav>
+<!-- Right: System telemetry status -->
+<div class="flex items-center gap-3 font-mono text-[11px] text-slate-500">
+<span class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>InaRISK: <strong class="text-slate-700">TERHUBUNG</strong></span>
+</span>
+<span class="text-slate-300">•</span>
+<span class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>BMKG Seismik: <strong class="text-slate-700">SINKRON</strong></span>
+</span>
+<span class="text-slate-300">•</span>
+<span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono font-medium">Latency: 28ms</span>
+</div>
+</footer>
+</body></html>

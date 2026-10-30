@@ -1,0 +1,43 @@
+<div id="modalMerge" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+  <div class="relative w-full max-w-[600px] my-auto bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200">
+    <div class="h-1.5 w-full bg-blue-600"></div>
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+      <h3 class="font-bold text-slate-900 text-sm font-display">Gabungkan Berita Susulan ke Kejadian Induk</h3>
+      <button onclick="closeMergeModal()" class="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 cursor-pointer">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+    <form id="mergeForm" method="POST" action="{% url 'merge_events' %}" class="p-6 space-y-4 text-xs">
+      {% csrf_token %}
+      <input type="hidden" name="source_id" id="mergeSourceId"/>
+      
+      <div>
+        <span class="block text-slate-500 font-mono text-[10px] uppercase">Berita Sumber yang Digabung:</span>
+        <p class="font-bold text-slate-900 mt-1" id="mergeSourceTitle">-</p>
+      </div>
+
+      <div>
+        <label class="block text-slate-700 font-semibold mb-1">Pilih Kejadian Induk Sasaran dalam Siklus Ini:</label>
+        <select name="target_id" required class="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-500">
+          {% for ev in events %}
+          <option value="{{ ev.id_kejadian }}">{{ ev.kode_kejadian }} - {{ ev.jenis_bencana }} ({{ ev.wilayah.nama_wilayah|default:"Nasional" }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="p-3 bg-blue-50 border border-blue-200 rounded text-blue-900 text-[11px]">
+        ℹ️ Seluruh artikel berita rujukan akan dialihkan ke kejadian induk sasaran, dan duplikat kejadian ini akan diarsipkan.
+      </div>
+
+      <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-200">
+        <button type="button" onclick="closeMergeModal()" class="px-4 py-2 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium cursor-pointer">
+          Batal
+        </button>
+        <button type="submit" class="px-5 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-1.5 cursor-pointer">
+          <span class="material-symbols-outlined text-[16px]">merge_type</span>
+          <span>Konfirmasi Gabung</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

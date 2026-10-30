@@ -1,0 +1,305 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Detail Kejadian {{ event.kode_kejadian }} — Pusdalops BNPB{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .detail-card {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 1.5rem;
+    }
+
+    .card-heading {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--navy-dark);
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .field-row {
+        margin-bottom: 1rem;
+    }
+
+    .field-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+
+    .field-val {
+        font-size: 0.9rem;
+        color: var(--text-main);
+        background: #f8fafc;
+        padding: 0.6rem 0.85rem;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 1.25rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 4px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e2e8f0;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -1.25rem;
+        top: 4px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--bnpb-orange);
+    }
+
+    .timeline-content {
+        background: #f8fafc;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+    <a href="{% url 'index' %}" style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--navy-dark); font-weight: 600; text-decoration: none; font-size: 0.85rem;">
+        &larr; Kembali ke Meja Piket Pusdalops
+    </a>
+    <div>
+        <span class="badge" style="background: var(--navy-dark); color: #fff; font-family: var(--font-mono); font-size: 0.75rem;">
+            ID: {{ event.id_kejadian }}
+        </span>
+        <span class="badge" style="background: #e2e8f0; color: #1e293b; font-family: var(--font-mono); font-size: 0.75rem; margin-left: 0.4rem;">
+            {{ event.kode_kejadian }}
+        </span>
+    </div>
+</div>
+
+<div class="detail-container">
+    <!-- Left Column: Incident Data & Sources -->
+    <div>
+        <!-- Block Informasi Utama -->
+        <div class="detail-card">
+            <div class="card-heading">
+                <span>Informasi Kebencanaan & Wilayah Terdampak</span>
+                <span class="badge 
+                    {% if event.status_verifikasi == 'TERVERIFIKASI' %}badge-verified
+                    {% elif event.status_verifikasi == 'HOAKS' %}badge-hoaks
+                    {% else %}badge-pending{% endif %}">
+                    {{ event.status_verifikasi }}
+                </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="field-row">
+                    <div class="field-label">Jenis Kejadian Bencana</div>
+                    <div class="field-val" style="font-weight: 700; color: var(--bnpb-orange);">{{ event.jenis_bencana }}</div>
+                </div>
+                <div class="field-row">
+                    <div class="field-label">Waktu Kejadian (Riil)</div>
+                    <div class="field-val" style="font-family: var(--font-mono);">
+                        {% if event.waktu_kejadian_riil %}
+                            {{ event.waktu_kejadian_riil|date:"d M Y, H:i" }} WIB
+                        {% else %}
+                            {{ event.waktu_kejadian_text|default:"Dalam Konfirmasi" }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="field-label">Lokasi Administratif (Standar Kemendagri)</div>
+                <div class="field-val" style="font-weight: 600;">
+                    {{ event.wilayah.hierarchy_display|default:"Belum terpetakan dalam master Kemendagri" }}
+                    {% if event.wilayah %}
+                    <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); margin-left: 0.5rem;">
+                        (Kode: {{ event.wilayah.id_wilayah }})
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1rem;">
+                <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 0.6rem; text-align: center;">
+                    <div style="font-size: 0.68rem; color: #991b1b; font-weight: 700;">MENINGGAL</div>
+                    <div style="font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; color: #dc2626;">{{ event.korban_meninggal }}</div>
+                </div>
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 0.6rem; text-align: center;">
+                    <div style="font-size: 0.68rem; color: #92400e; font-weight: 700;">LUKA-LUKA</div>
+                    <div style="font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; color: #d97706;">{{ event.korban_luka }}</div>
+                </div>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.6rem; text-align: center;">
+                    <div style="font-size: 0.68rem; color: #475569; font-weight: 700;">HILANG</div>
+                    <div style="font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; color: #64748b;">{{ event.korban_hilang }}</div>
+                </div>
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 0.6rem; text-align: center;">
+                    <div style="font-size: 0.68rem; color: #1e40af; font-weight: 700;">MENGUNGSI</div>
+                    <div style="font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; color: #2563eb;">{{ event.korban_mengungsi }}</div>
+                </div>
+            </div>
+
+            <div class="field-row" style="margin-top: 1.25rem;">
+                <div class="field-label">Upaya Penanganan TRC BNPB / BPBD</div>
+                <div class="field-val" style="white-space: pre-line;">{{ event.upaya|default:"Belum ada catatan tindakan TRC." }}</div>
+            </div>
+
+            <div class="field-row">
+                <div class="field-label">Kondisi Mutakhir Lapangan</div>
+                <div class="field-val" style="white-space: pre-line;">{{ event.kondisi_mutakhir|default:"Pemantauan terus berlangsung." }}</div>
+            </div>
+        </div>
+
+        <!-- Clustered Portal Berita & Sumber Terkait -->
+        <div class="detail-card">
+            <div class="card-heading">
+                <span>Daftar Artikel & Portal Rujukan Berita Terintegrasi</span>
+                <span class="badge" style="background: #e2e8f0; color: #1e293b; font-size: 0.72rem;">{{ event.berita_list.count }} Artikel Terkait</span>
+            </div>
+
+            {% for b in event.berita_list.all %}
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.85rem; margin-bottom: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--navy-dark);">
+                        {{ b.nama_portal }}
+                        {% if b.is_lead %}
+                            <span class="badge" style="background: var(--bnpb-orange); color: #fff; font-size: 0.62rem; margin-left: 0.4rem;">RUJUKAN UTAMA (LEAD)</span>
+                        {% endif %}
+                    </span>
+                    <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted);">
+                        {{ b.waktu_terbit|date:"d M Y, H:i" }} WIB
+                    </span>
+                </div>
+                <div style="font-size: 0.88rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.35rem;">
+                    {{ b.judul }}
+                </div>
+                {% if b.isi_ringkas %}
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem; line-height: 1.4;">
+                    {{ b.isi_ringkas }}
+                </p>
+                {% endif %}
+                {% if b.url_artikel %}
+                <a href="{{ b.url_artikel }}" target="_blank" rel="noopener" style="font-size: 0.75rem; color: var(--bnpb-orange); text-decoration: none; font-weight: 600;">
+                    Buka Artikel Asli &nearr;
+                </a>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">Tidak ada rujukan artikel berita terhubung.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Right Column: Verification Action & Audit Logs -->
+    <div>
+        <div class="detail-card">
+            <div class="card-heading">
+                <span>Aksi Verifikasi Cepat</span>
+            </div>
+
+            <form method="POST" action="{% url 'update_verification' event.id_kejadian %}">
+                {% csrf_token %}
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.35rem;">
+                        Penetapan Status:
+                    </label>
+                    <select name="status_verifikasi" class="filter-select" style="width: 100%; font-weight: 700;">
+                        <option value="TERVERIFIKASI" {% if event.status_verifikasi == 'TERVERIFIKASI' %}selected{% endif %}>
+                            TERVERIFIKASI (Masuk Laporan Resmi)
+                        </option>
+                        <option value="PENDING" {% if event.status_verifikasi == 'PENDING' %}selected{% endif %}>
+                            PENDING (Perlu Konfirmasi Lapangan)
+                        </option>
+                        <option value="HOAKS" {% if event.status_verifikasi == 'HOAKS' %}selected{% endif %}>
+                            HOAKS / TIDAK VALID (Arsipkan)
+                        </option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.35rem;">
+                        Nama Petugas / Verifikator:
+                    </label>
+                    <input type="text" name="verifikator" class="filter-input" style="width: 100%;" value="Petugas Piket Pusdalops" required>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.35rem;">
+                        Catatan Hasil Verifikasi:
+                    </label>
+                    <textarea name="catatan_verifikasi" class="filter-input" style="width: 100%; height: 80px;" placeholder="Masukkan ringkasan konfirmasi ke Pusdalops BPBD daerah terdampak..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    Simpan Verifikasi & Catat Audit
+                </button>
+            </form>
+        </div>
+
+        <!-- Audit Trail Timeline -->
+        <div class="detail-card">
+            <div class="card-heading">
+                <span>Jejak Audit (Audit Trail)</span>
+            </div>
+
+            <div class="timeline">
+                {% for log in event.audit_logs.all %}
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">
+                            {{ log.created_at|date:"d M Y, H:i:s" }} WIB
+                        </div>
+                        <div style="font-weight: 700; font-size: 0.8rem; color: var(--navy-dark);">
+                            {{ log.aksi }}
+                        </div>
+                        <div style="font-size: 0.74rem; color: var(--bnpb-orange); font-weight: 600;">
+                            {{ log.petugas }}
+                        </div>
+                        {% if log.catatan %}
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; font-style: italic;">
+                            "{{ log.catatan }}"
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">Belum ada riwayat audit log.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

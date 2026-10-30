@@ -1,0 +1,756 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Pusat Ekspor Laporan Situasi (Sitrep Bagian A) — Pusdalops BNPB{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Studio Desk Background Canvas */
+  .studio-canvas {
+    background-color: #f1f5f9;
+    background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+    background-size: 24px 24px;
+    min-height: calc(100vh - 128px);
+  }
+
+  /* Physical A4 Sheet Simulation */
+  .paper-sheet {
+    width: 100%;
+    max-width: 840px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 2px;
+    box-shadow: 
+      0 20px 25px -5px rgba(15, 23, 42, 0.12),
+      0 10px 10px -5px rgba(15, 23, 42, 0.04),
+      0 0 0 1px rgba(15, 23, 42, 0.08);
+    padding: 60px 68px;
+    position: relative;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #0f172a;
+    transition: all 0.2s ease;
+  }
+
+  /* Watermark */
+  .paper-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-35deg);
+    font-size: 5.5rem;
+    font-weight: 900;
+    font-family: 'Space Grotesk', sans-serif;
+    color: rgba(15, 23, 42, 0.025);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1;
+    letter-spacing: 0.1em;
+  }
+
+  /* Government Double Line Header */
+  .kop-divider-double {
+    border-top: 3px solid #0b192c;
+    border-bottom: 1px solid #0b192c;
+    height: 4px;
+    margin-top: 14px;
+    margin-bottom: 22px;
+  }
+
+  /* Data Table Styling */
+  .table-sitrep {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin-bottom: 20px;
+    border: 1px solid #cbd5e1;
+  }
+
+  .table-sitrep th {
+    background-color: #0b192c;
+    color: #ffffff;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 7.5pt;
+    letter-spacing: 0.03em;
+    padding: 8px 10px;
+    border: 1px solid #1e293b;
+    text-align: center;
+  }
+
+  .table-sitrep td {
+    border: 1px solid #cbd5e1;
+    padding: 7px 10px;
+    color: #1e293b;
+  }
+
+  .table-sitrep tr:nth-child(even) td {
+    background-color: #f8fafc;
+  }
+
+  .table-sitrep tfoot td {
+    background-color: #f1f5f9;
+    font-weight: 800;
+    border-top: 2px solid #0b192c;
+    color: #0b192c;
+  }
+
+  /* Authentic Circular Stamp */
+  .official-stamp {
+    width: 130px;
+    height: 130px;
+    border: 3px solid #b91c1c;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #b91c1c;
+    font-family: 'Space Grotesk', sans-serif;
+    transform: rotate(-14deg);
+    opacity: 0.88;
+    user-select: none;
+    position: relative;
+    box-shadow: inset 0 0 0 2px #b91c1c;
+    background: radial-gradient(circle, rgba(254, 242, 242, 0.4) 0%, rgba(254, 242, 242, 0.05) 70%);
+  }
+
+  .official-stamp .stamp-title {
+    font-size: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 1.1;
+  }
+
+  .official-stamp .stamp-center {
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    border-top: 1.5px solid #b91c1c;
+    border-bottom: 1.5px solid #b91c1c;
+    padding: 3px 6px;
+    margin: 4px 0;
+    letter-spacing: 0.08em;
+  }
+
+  .official-stamp .stamp-sub {
+    font-size: 7.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  /* Print Styles */
+  @media print {
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+    }
+    header, .operational-strip, .studio-sidebar, .studio-topbar, footer, .modal-backdrop, .no-print {
+      display: none !important;
+    }
+    .studio-canvas {
+      background: none !important;
+      padding: 0 !important;
+      min-height: 0 !important;
+    }
+    .paper-sheet {
+      box-shadow: none !important;
+      border: none !important;
+      padding: 0 !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ========================================================================= -->
+<!-- STUDIO CONTROL DECK & DOCUMENT WORKSPACE                                  -->
+<!-- ========================================================================= -->
+<div class="studio-canvas px-4 lg:px-8 py-6">
+  <!-- Studio Breadcrumb & Live Mode Bar -->
+  <div class="max-w-[1440px] mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-[#0B192C] flex items-center justify-center text-white shadow-sm ring-1 ring-slate-800">
+        <span class="material-symbols-outlined text-[22px] text-[#EA580C]">description</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Pusdalops PB &bull; Studio Dokumen</span>
+          <span class="text-xs font-mono bg-white text-slate-700 px-2 py-0.5 rounded border border-slate-300 shadow-2xs font-bold">
+            {{ current_cycle.kode_siklus }}
+          </span>
+        </div>
+        <h1 class="text-xl font-bold text-[#0B192C] tracking-tight">
+          Pusat Ekspor &amp; Finalisasi Naskah Situasi Bencana (SITREP Bagian A)
+        </h1>
+      </div>
+    </div>
+
+    <!-- Right Mode Badges -->
+    <div class="flex items-center gap-2">
+      {% if current_cycle.is_locked %}
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-rose-800 border border-rose-300 shadow-2xs">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+          </span>
+          <span>STATUS: TERKUNCI OLEH SUPERVISOR (READ-ONLY)</span>
+        </div>
+      {% else %}
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-2xs">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600"></span>
+          </span>
+          <span>STATUS: DRAF TERBUKA (SIAP PENGESAHAN)</span>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Main Grid: Sidebar Studio (Col 4) & Document Canvas (Col 8) -->
+  <div class="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- ===================================================================== -->
+    <!-- LEFT COLUMN: STUDIO CONTROL SIDEBAR                                   -->
+    <!-- ===================================================================== -->
+    <div class="lg:col-span-4 xl:col-span-4 space-y-5 no-print studio-sidebar">
+      
+      <!-- Card 1: Action Command Deck (Buttons) -->
+      <div class="bg-white rounded-xl border border-slate-200/90 shadow-sm p-5 overflow-hidden relative">
+        <div class="border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
+          <h2 class="text-sm font-bold text-[#0B192C] flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px] text-[#EA580C]">bolt</span>
+            Aksi Penerbitan Dokumen Resmi
+          </h2>
+          <span class="text-[11px] font-mono font-semibold text-slate-500">v2.2.0</span>
+        </div>
+
+        <div class="space-y-2.5">
+          <!-- Primary CTA: Download Word (.docx) -->
+          <a href="{% url 'export_word' %}" 
+             class="w-full bg-[#0B192C] hover:bg-slate-900 text-white font-semibold text-sm px-4 py-3 rounded-lg shadow-sm flex items-center justify-between transition-all group border border-slate-800">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-xs font-mono">
+                DOCX
+              </div>
+              <div class="text-left">
+                <div class="text-xs font-bold text-white group-hover:text-orange-400 transition-colors">Unduh Berkas Word Resmi</div>
+                <div class="text-[11px] text-slate-400">Format Microsoft Word (.docx) &bull; Bagian A</div>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-[20px] text-slate-300 group-hover:translate-y-0.5 transition-transform">download</span>
+          </a>
+
+          <!-- Secondary CTA: Copy WhatsApp -->
+          <button onclick="copyWaReport()" 
+                  class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-3 rounded-lg shadow-sm flex items-center justify-between transition-all group">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded bg-emerald-800 flex items-center justify-center text-white text-base shadow-xs">
+                <span class="material-symbols-outlined text-[18px]">chat</span>
+              </div>
+              <div class="text-left">
+                <div class="text-xs font-bold text-white">Salin Siaran WhatsApp</div>
+                <div class="text-[11px] text-emerald-100">Format ringkasan komando terkluster</div>
+              </div>
+            </div>
+            <span class="material-symbols-outlined text-[20px] text-emerald-200 group-hover:scale-110 transition-transform">content_copy</span>
+          </button>
+
+          <!-- Tertiary CTA: Print / PDF -->
+          <button onclick="window.print()" 
+                  class="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold text-sm px-4 py-2.5 rounded-lg shadow-2xs flex items-center justify-between transition-all group">
+            <div class="flex items-center gap-2.5">
+              <span class="material-symbols-outlined text-[18px] text-slate-500">print</span>
+              <span class="text-xs font-bold text-slate-800">Cetak Naskah / Simpan PDF</span>
+            </div>
+            <span class="text-[11px] font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">Ctrl + P</span>
+          </button>
+        </div>
+
+        <!-- Lock / Unlock Action Section -->
+        <div class="mt-5 pt-4 border-t border-slate-100">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-2">Otorisasi Kasubdit / Supervisor:</div>
+          
+          {% if current_cycle.is_locked %}
+            <div class="bg-rose-50 border border-rose-200 rounded-lg p-3.5 mb-3">
+              <div class="flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-[20px] text-rose-700 mt-0.5">lock</span>
+                <div>
+                  <div class="text-xs font-bold text-rose-900">Siklus Sedang Terkunci Resmi</div>
+                  <div class="text-[11px] text-rose-700 mt-0.5 leading-snug">
+                    Diverifikasi oleh <strong>{{ current_cycle.locked_by|default:"Supervisor" }}</strong> pada {{ current_cycle.locked_at|date:"d M Y H:i" }} WIB.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button onclick="openUnlockModal()" 
+                    class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
+              <span class="material-symbols-outlined text-[18px]">lock_open</span>
+              <span>Buka Kunci Darurat (Emergency Unlock)</span>
+            </button>
+          {% else %}
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+              <div class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-[18px] text-amber-700 mt-0.5">info</span>
+                <div class="text-[11px] text-amber-800 leading-snug">
+                  Kunci siklus sebelum naskah laporan dikirimkan ke Kepala BNPB untuk mencegah perubahan data.
+                </div>
+              </div>
+            </div>
+            <button onclick="openLockModal()" 
+                    class="w-full bg-[#EA580C] hover:bg-orange-600 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-sm flex items-center justify-center gap-2 transition-colors">
+              <span class="material-symbols-outlined text-[18px]">lock</span>
+              <span>Kunci Siklus (Lock Snapshot)</span>
+            </button>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Card 2: Executive Telemetry Indicators -->
+      <div class="bg-white rounded-xl border border-slate-200/90 shadow-sm p-5">
+        <div class="border-b border-slate-100 pb-3 mb-3 flex items-center justify-between">
+          <h2 class="text-sm font-bold text-[#0B192C] flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px] text-slate-500">analytics</span>
+            Telemetri Dampak Terverifikasi
+          </h2>
+          <span class="text-xs font-mono font-bold text-orange-600">{{ current_cycle.kode_siklus }}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Total Kejadian -->
+          <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+            <span class="text-[11px] font-bold uppercase text-slate-500 block">Total Kejadian</span>
+            <div class="text-2xl font-bold font-mono text-[#0B192C] mt-1">{{ stats.total_kejadian }}</div>
+            <span class="text-[10px] text-slate-500">Bencana Terverifikasi</span>
+          </div>
+
+          <!-- Meninggal Dunia -->
+          <div class="bg-red-50/70 rounded-lg p-3 border border-red-200">
+            <span class="text-[11px] font-bold uppercase text-red-700 block">Meninggal (MD)</span>
+            <div class="text-2xl font-bold font-mono text-red-700 mt-1">{{ stats.total_meninggal }}</div>
+            <span class="text-[10px] text-red-600">Jiwa Terkonfirmasi</span>
+          </div>
+
+          <!-- Mengungsi -->
+          <div class="bg-blue-50/70 rounded-lg p-3 border border-blue-200">
+            <span class="text-[11px] font-bold uppercase text-blue-700 block">Mengungsi</span>
+            <div class="text-2xl font-bold font-mono text-blue-700 mt-1">{{ stats.total_mengungsi }}</div>
+            <span class="text-[10px] text-blue-600">Jiwa di Pengungsian</span>
+          </div>
+
+          <!-- Rumah Rusak / Terendam -->
+          <div class="bg-amber-50/70 rounded-lg p-3 border border-amber-200">
+            <span class="text-[11px] font-bold uppercase text-amber-800 block">Rumah Terdampak</span>
+            <div class="text-2xl font-bold font-mono text-amber-800 mt-1">{{ stats.total_rusak_berat|add:stats.total_terendam }}</div>
+            <span class="text-[10px] text-amber-700">Unit Rusak / Terendam</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Quick Navigation Inside Sheet -->
+      <div class="bg-white rounded-xl border border-slate-200/90 shadow-sm p-5">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px]">menu_book</span>
+          Navigasi Struktur Naskah
+        </h3>
+        <nav class="space-y-1 text-xs">
+          <a href="#kopDoc" class="block px-2.5 py-1.5 rounded hover:bg-slate-100 text-slate-700 font-medium transition-colors">
+            &bull; Kop Dinas &amp; Metadata Siklus
+          </a>
+          <a href="#rekapDoc" class="block px-2.5 py-1.5 rounded hover:bg-slate-100 text-slate-700 font-medium transition-colors">
+            &bull; Bagian I. Rekapitulasi Nasional 24 Jam
+          </a>
+          <a href="#rincianDoc" class="block px-2.5 py-1.5 rounded hover:bg-slate-100 text-slate-700 font-medium transition-colors">
+            &bull; Bagian II. Rincian Kejadian per Kluster
+          </a>
+          <a href="#ttdDoc" class="block px-2.5 py-1.5 rounded hover:bg-slate-100 text-slate-700 font-medium transition-colors">
+            &bull; Bagian III. Lembar Pengesahan &amp; Stempel
+          </a>
+        </nav>
+      </div>
+
+      <!-- Card 4: Audit Logs Feed -->
+      <div class="bg-white rounded-xl border border-slate-200/90 shadow-sm p-5">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">history</span>
+            Jejak Audit Siklus
+          </h3>
+          <span class="text-[11px] font-mono text-slate-400">{{ cycle_logs.count }} Entri</span>
+        </div>
+
+        {% if cycle_logs %}
+          <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+            {% for log in cycle_logs %}
+              <div class="text-[11px] bg-slate-50 border border-slate-200 rounded p-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-slate-800">{{ log.id_user }}</span>
+                  <span class="font-mono text-[10px] text-slate-400">{{ log.waktu_aksi|date:"H:i" }} WIB</span>
+                </div>
+                <div class="text-slate-600 mt-0.5">
+                  <span class="font-mono font-semibold text-slate-700">{{ log.status_sesudah }}</span>
+                </div>
+                {% if log.catatan %}
+                  <div class="text-slate-600 italic mt-1 bg-white p-1 rounded border border-slate-200 text-[10px]">
+                    "{{ log.catatan }}"
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-xs text-slate-400 italic">Belum ada riwayat kunci pada siklus ini.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- RIGHT COLUMN: PHYSICAL A4 SITREP DOCUMENT CANVAS                      -->
+    <!-- ===================================================================== -->
+    <div class="lg:col-span-8 xl:col-span-8 flex flex-col items-center">
+      
+      <!-- Canvas Floating Toolbar -->
+      <div class="w-full max-w-[840px] mb-3 flex items-center justify-between text-xs text-slate-600 bg-white/80 backdrop-blur-xs px-4 py-2 rounded-lg border border-slate-300/80 shadow-2xs no-print">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-[16px] text-slate-400">preview</span>
+          <span class="font-semibold text-slate-800">Pratinjau Kertas Cetak A4 Standar Dinas BNPB</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="font-mono text-[11px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+            Skala: 100%
+          </span>
+          <button onclick="window.print()" class="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1">
+            <span class="material-symbols-outlined text-[15px]">print</span>
+            <span>Cetak Dokumen</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- The Simulated Physical Paper Sheet -->
+      <article class="paper-sheet" id="printableSitrep">
+        
+        <!-- Watermark -->
+        <div class="paper-watermark">
+          {% if current_cycle.is_locked %}RESMI PUSDALOPS BNPB{% else %}DRAF LAPORAN HARIAN{% endif %}
+        </div>
+
+        <!-- 1. KOP SURAT RESMI KEDINASAN BNPB -->
+        <header id="kopDoc" class="relative z-10">
+          <div class="flex items-center gap-5 pb-2">
+            <!-- Official BNPB Vector Emblem -->
+            <div class="w-20 h-20 shrink-0 flex items-center justify-center">
+              <svg viewBox="0 0 100 100" class="w-20 h-20 drop-shadow-xs">
+                <!-- Outer Gold Shield / Border -->
+                <polygon points="50,4 94,22 94,62 50,96 6,62 6,22" fill="#0B192C" stroke="#EA580C" stroke-width="4"/>
+                <!-- Inner Orange Triangle (Rescue Emblem) -->
+                <polygon points="50,20 82,72 18,72" fill="#EA580C"/>
+                <polygon points="50,28 75,68 25,68" fill="#FFFFFF"/>
+                <polygon points="50,38 68,65 32,65" fill="#0B192C"/>
+                <text x="50" y="58" font-family="'Space Grotesk', sans-serif" font-weight="900" font-size="12" fill="#FFFFFF" text-anchor="middle">BNPB</text>
+              </svg>
+            </div>
+
+            <!-- Header Titles -->
+            <div class="flex-1 text-center pr-4">
+              <h1 class="font-extrabold text-[#0B192C] tracking-wide text-base leading-tight uppercase font-display" style="font-size: 13.5pt;">
+                BADAN NASIONAL PENANGGULANGAN BENCANA
+              </h1>
+              <h2 class="font-bold text-[#EA580C] tracking-wider text-sm mt-0.5 uppercase font-display" style="font-size: 11.5pt;">
+                PUSAT PENGENDALIAN OPERASI PENANGGULANGAN BENCANA (PUSDALOPS PB)
+              </h2>
+              <p class="text-[8.5pt] text-slate-600 mt-1 leading-snug">
+                Gedung Graha BNPB, Jl. Pramuka Kav. 38, Jakarta Timur 13120 &bull; Telp. (021) 29827793 &bull; Call Center: 117
+              </p>
+              <p class="text-[8pt] text-slate-500 font-mono">
+                Situs Web: www.bnpb.go.id &bull; Pos-el: pusdalops@bnpb.go.id
+              </p>
+            </div>
+          </div>
+
+          <!-- Double Border Line (Government Standard) -->
+          <div class="kop-divider-double"></div>
+        </header>
+
+        <!-- 2. DOCUMENT TITLE & METADATA BLOCK -->
+        <section class="text-center mb-6 relative z-10">
+          <div class="font-mono text-[9pt] font-semibold text-slate-600 mb-1">
+            NOMOR: SITREP-{{ current_cycle.kode_siklus }}/OPS/{{ now_wib|date:"m/Y" }}
+          </div>
+          <h2 class="font-extrabold text-[12.5pt] text-[#0B192C] uppercase tracking-wide underline underline-offset-4 font-display">
+            LAPORAN HARIAN SITUASI BENCANA (SITREP BAGIAN A)
+          </h2>
+          <div class="mt-2 inline-flex items-center gap-2 bg-slate-100 px-3.5 py-1 rounded border border-slate-300 font-mono text-[8.5pt] font-bold text-slate-800">
+            <span class="material-symbols-outlined text-[14px] text-amber-700">schedule</span>
+            <span>PERIODE PEMANTAUAN 24 JAM: {{ current_cycle.range_display|upper }}</span>
+          </div>
+        </section>
+
+        <!-- 3. BAGIAN I: REKAPITULASI NASIONAL -->
+        <section id="rekapDoc" class="mb-7 relative z-10">
+          <div class="bg-[#0B192C] text-white text-[9pt] font-bold px-3 py-1.5 uppercase tracking-wide flex items-center justify-between mb-2">
+            <span>I. REKAPITULASI DAMPAK KEBENCANAAN NASIONAL 24 JAM</span>
+            <span class="text-[8pt] font-mono text-orange-400 font-normal">CUT-OFF: 07.00 WIB</span>
+          </div>
+
+          <table class="table-sitrep">
+            <thead>
+              <tr>
+                <th rowspan="2" style="width: 30%; text-align: left; padding-left: 12px;">JENIS KEJADIAN BENCANA</th>
+                <th rowspan="2" style="width: 14%;">JUMLAH KEJADIAN</th>
+                <th colspan="4" style="width: 32%;">KORBAN JIWA (JIWA)</th>
+                <th colspan="2" style="width: 24%;">KERUSAKAN RUMAH (UNIT)</th>
+              </tr>
+              <tr>
+                <th style="width: 8%;">MD</th>
+                <th style="width: 8%;">LUKA</th>
+                <th style="width: 8%;">HLG</th>
+                <th style="width: 8%;">MENGUNGSI</th>
+                <th style="width: 12%;">RUSAK</th>
+                <th style="width: 12%;">TERENDAM</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cluster in clusters %}
+              <tr>
+                <td style="font-weight: 700; padding-left: 12px; color: #0b192c;">
+                  {{ cluster.label }}. {{ cluster.jenis|upper }}
+                </td>
+                <td class="text-center font-mono font-bold">{{ cluster.items|length }}</td>
+                <td class="text-center font-mono {% if stats.total_meninggal > 0 %}text-red-700 font-bold{% endif %}">
+                  {% for itm in cluster.items %}{% if forloop.first %}{{ itm.korban_meninggal }}{% endif %}{% endfor %}
+                </td>
+                <td class="text-center font-mono">
+                  {% for itm in cluster.items %}{% if forloop.first %}{{ itm.korban_luka }}{% endif %}{% endfor %}
+                </td>
+                <td class="text-center font-mono">
+                  {% for itm in cluster.items %}{% if forloop.first %}{{ itm.korban_hilang }}{% endif %}{% endfor %}
+                </td>
+                <td class="text-center font-mono {% if stats.total_mengungsi > 0 %}text-blue-700 font-bold{% endif %}">
+                  {% for itm in cluster.items %}{% if forloop.first %}{{ itm.korban_mengungsi }}{% endif %}{% endfor %}
+                </td>
+                <td class="text-center font-mono">
+                  {% for itm in cluster.items %}{% if forloop.first %}{{ itm.rumah_rusak_berat|add:itm.rumah_rusak_sedang }}{% endif %}{% endfor %}
+                </td>
+                <td class="text-center font-mono">
+                  {% for itm in cluster.items %}{% if forloop.first %}{{ itm.rumah_terendam }}{% endif %}{% endfor %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="8" class="text-center py-4 text-slate-500 italic">
+                  Nihil kejadian bencana terverifikasi resmi pada siklus pemantauan ini.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td style="padding-left: 12px;">TOTAL KESELURUHAN</td>
+                <td class="text-center font-mono font-bold">{{ stats.total_kejadian }}</td>
+                <td class="text-center font-mono text-red-700 font-bold">{{ stats.total_meninggal }}</td>
+                <td class="text-center font-mono font-bold">{{ stats.total_luka }}</td>
+                <td class="text-center font-mono font-bold">{{ stats.total_hilang }}</td>
+                <td class="text-center font-mono text-blue-700 font-bold">{{ stats.total_mengungsi }}</td>
+                <td class="text-center font-mono font-bold">{{ stats.total_rusak_berat|add:stats.total_rusak_sedang }}</td>
+                <td class="text-center font-mono font-bold">{{ stats.total_terendam }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </section>
+
+        <!-- 4. BAGIAN II: RINCIAN KEJADIAN TERVERIFIKASI -->
+        <section id="rincianDoc" class="mb-8 relative z-10">
+          <div class="bg-[#0B192C] text-white text-[9pt] font-bold px-3 py-1.5 uppercase tracking-wide flex items-center justify-between mb-3">
+            <span>II. RINCIAN KEJADIAN BENCANA TERVERIFIKASI RESMI</span>
+            <span class="text-[8pt] font-mono text-orange-400 font-normal">BAGIAN A</span>
+          </div>
+
+          {% for cluster in clusters %}
+            <div class="text-[10pt] font-extrabold text-[#EA580C] uppercase tracking-wide pb-1 mb-3 border-b-2 border-orange-200 flex items-center justify-between">
+              <span>{{ cluster.label }}. {{ cluster.jenis|upper }} ({{ cluster.items|length }} KEJADIAN)</span>
+              <span class="text-[8pt] font-mono font-semibold text-slate-500">KLASTER RESMI</span>
+            </div>
+
+            {% for ev in cluster.items %}
+            <div class="mb-5 pb-4 border-b border-slate-200 last:border-b-0">
+              <!-- Item Header Title -->
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <div class="font-bold text-[9.5pt] text-[#0B192C] leading-snug">
+                  {{ forloop.counter }}. {{ ev.jenis_bencana|upper }} &mdash; 
+                  {% if ev.wilayah %}{{ ev.wilayah.hierarchy_display|upper }}{% else %}WILAYAH TERDAMPAK{% endif %}
+                </div>
+                <span class="shrink-0 font-mono text-[7.5pt] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+                  {{ ev.kode_kejadian }}
+                </span>
+              </div>
+
+              <!-- Item Parameter Grid -->
+              <div class="grid grid-cols-12 gap-x-2 gap-y-1.5 text-[8.5pt] leading-relaxed">
+                <!-- Parameter 1: Waktu Riil -->
+                <div class="col-span-3 font-semibold text-slate-600">Waktu Kejadian:</div>
+                <div class="col-span-9 font-medium text-slate-900">
+                  {% if ev.waktu_kejadian_riil %}
+                    {{ ev.waktu_kejadian_riil|date:"l, d F Y, H:i" }} WIB
+                  {% else %}
+                    {{ ev.waktu_kejadian_text|default:"Dalam konfirmasi lapangan" }}
+                  {% endif %}
+                </div>
+
+                <!-- Parameter 2: Lokasi Kemendagri -->
+                <div class="col-span-3 font-semibold text-slate-600">Lokasi Administratif:</div>
+                <div class="col-span-9 font-medium text-slate-900">
+                  {{ ev.wilayah.hierarchy_display|default:"Data wilayah belum terpetakan" }}
+                  {% if ev.wilayah %}
+                    <span class="font-mono text-[8pt] text-slate-500 font-normal">
+                      (Kode Kemendagri: {{ ev.wilayah.id_wilayah }})
+                    </span>
+                  {% endif %}
+                </div>
+
+                <!-- Parameter 3: Dampak Korban Jiwa -->
+                <div class="col-span-3 font-semibold text-slate-600">Dampak Korban:</div>
+                <div class="col-span-9 font-medium text-slate-900">
+                  {% if ev.korban_meninggal > 0 %}<strong class="text-red-700 font-bold">{{ ev.korban_meninggal }} Meninggal Dunia (MD)</strong>, {% endif %}
+                  {% if ev.korban_luka > 0 %}{{ ev.korban_luka }} Luka-Luka, {% endif %}
+                  {% if ev.korban_hilang > 0 %}{{ ev.korban_hilang }} Hilang, {% endif %}
+                  {% if ev.korban_mengungsi > 0 %}<span class="text-blue-700 font-semibold">{{ ev.korban_mengungsi }} Jiwa Mengungsi</span>{% endif %}
+                  {% if ev.korban_meninggal == 0 and ev.korban_luka == 0 and ev.korban_hilang == 0 and ev.korban_mengungsi == 0 %}
+                    <span class="text-slate-500 italic">Nihil korban jiwa</span>
+                  {% endif %}
+                </div>
+
+                <!-- Parameter 4: Kerusakan Fisik -->
+                <div class="col-span-3 font-semibold text-slate-600">Kerusakan Fisik:</div>
+                <div class="col-span-9 font-medium text-slate-900">
+                  {% if ev.rumah_rusak_berat > 0 %}<strong>{{ ev.rumah_rusak_berat }} Unit Rusak Berat</strong>, {% endif %}
+                  {% if ev.rumah_terendam > 0 %}<strong class="text-amber-800">{{ ev.rumah_terendam }} Unit Rumah Terendam</strong>, {% endif %}
+                  {% if ev.rumah_rusak_berat == 0 and ev.rumah_terendam == 0 %}
+                    <span class="text-slate-500 italic">Dalam proses asesmen teknis BPBD</span>
+                  {% endif %}
+                </div>
+
+                <!-- Parameter 5: Upaya TRC -->
+                <div class="col-span-3 font-semibold text-slate-600">Upaya Penanganan:</div>
+                <div class="col-span-9 text-slate-900 whitespace-pre-line bg-slate-50/70 p-2 rounded border border-slate-200/80">
+                  {{ ev.upaya|default:"Koordinasi aktif dengan BPBD setempat." }}
+                </div>
+
+                <!-- Parameter 6: Kondisi Mutakhir -->
+                <div class="col-span-3 font-semibold text-slate-600">Kondisi Terkini:</div>
+                <div class="col-span-9 text-slate-900 whitespace-pre-line">
+                  {{ ev.kondisi_mutakhir|default:"Situasi dalam pemantauan rutin Pusdalops." }}
+                </div>
+
+                <!-- Parameter 7: Rujukan Berita Resmi -->
+                <div class="col-span-3 font-semibold text-slate-600">Rujukan Media:</div>
+                <div class="col-span-9 text-slate-600 text-[8pt]">
+                  {% with lead=ev.lead_article %}
+                    {% if lead %}
+                      <strong class="text-[#0B192C]">{{ lead.nama_portal }}</strong> &bull; 
+                      <em>"{{ lead.judul|truncatechars:70 }}"</em>
+                      {% if ev.additional_sources_count > 0 %}
+                        <span class="text-slate-400 font-mono">(+{{ ev.additional_sources_count }} portal diverifikasi)</span>
+                      {% endif %}
+                    {% else %}
+                      Laporan Posko Pusdalops PB
+                    {% endif %}
+                  {% endwith %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% empty %}
+            <div class="text-center py-6 text-slate-500 italic text-[9pt]">
+              Tidak ada rincian kejadian bencana terverifikasi pada siklus pemantauan ini.
+            </div>
+          {% endfor %}
+        </section>
+
+        <!-- 5. BAGIAN III: LEMBAR PENGESAHAN DOKUMEN & STEMPEL RESMI -->
+        <section id="ttdDoc" class="pt-6 border-t-2 border-slate-900 relative z-10">
+          <div class="grid grid-cols-2 gap-8 text-[9pt] items-start">
+            
+            <!-- Left Signature: Operator Meja Piket -->
+            <div class="text-center">
+              <div class="text-slate-600">Mengetahui &amp; Menyiapkan,</div>
+              <div class="font-bold text-[#0B192C] mt-0.5">Petugas Operator Meja Piket</div>
+              <div class="h-20 flex items-center justify-center">
+                <!-- Subtle Sign Silhouette -->
+                <span class="font-mono text-[10pt] text-slate-300 italic tracking-widest">[ Ditandatangani Elektronik ]</span>
+              </div>
+              <div class="font-bold text-[#0B192C] text-[9.5pt] underline">BUDI PRASETYO, S.ST</div>
+              <div class="text-[8pt] text-slate-500 font-mono">NIP. 19850412 201001 1 015</div>
+              <div class="text-[7.5pt] text-slate-400 mt-0.5">Pusdalops PB BNPB &bull; Shift 1</div>
+            </div>
+
+            <!-- Right Signature: Kasubdit / Kasatgas with Official Stamp -->
+            <div class="text-center relative">
+              <div class="text-slate-600">Jakarta, {{ now_wib|date:"d F Y" }}</div>
+              <div class="font-bold text-[#0B192C] mt-0.5">Kasubdit Pengendalian Operasi / Kasatgas</div>
+              
+              <div class="h-20 flex items-center justify-center relative">
+                <!-- Authentic Pusdalops Circular Digital Stamp -->
+                <div class="official-stamp absolute -top-4 right-10">
+                  <div class="stamp-title">BADAN NASIONAL<br>PENANGGULANGAN BENCANA</div>
+                  <div class="stamp-center">&#9733; PUSDALOPS PB &#9733;</div>
+                  <div class="stamp-sub">DOKUMEN RESMI</div>
+                </div>
+              </div>
+
+              <div class="font-bold text-[#0B192C] text-[9.5pt] underline relative z-10">
+                {% if current_cycle.locked_by %}
+                  {{ current_cycle.locked_by|upper }}
+                {% else %}
+                  DRS. H. SUTARYO, M.SI
+                {% endif %}
+              </div>
+              <div class="text-[8pt] text-slate-500 font-mono relative z-10">NIP. 19740618 199803 1 002</div>
+              <div class="text-[7.5pt] text-slate-400 mt-0.5 relative z-10">Kementerian / Lembaga BNPB RI</div>
+            </div>
+          </div>
+
+          <!-- Bottom Security Code -->
+          <div class="mt-8 pt-3 border-t border-slate-200 flex items-center justify-between text-[7.5pt] text-slate-400 font-mono">
+            <span>KEASLIAN DOKUMEN: SISTEM OTOMASI PUSDALOPS BNPB 24 JAM</span>
+            <span>KODE VERIFIKASI: SHA256:{{ current_cycle.kode_siklus }}-{{ now_wib|date:"YmdHi" }}</span>
+          </div>
+        </section>
+
+      </article>
+
+      <!-- Bottom Padding for Comfort -->
+      <div class="h-16"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Partials -->
+{% include "dashboard/modals/lock_cycle_modal.html" %}
+{% include "dashboard/modals/unlock_cycle_modal.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function openLockModal() {
+    document.getElementById('modalLockCycle').classList.add('active');
+  }
+
+  function closeLockModal() {
+    document.getElementById('modalLockCycle').classList.remove('active');
+  }
+
+  function openUnlockModal() {
+    document.getElementById('modalUnlockCycle').classList.add('active');
+  }
+
+  function closeUnlockModal() {
+    document.getElementById('modalUnlockCycle').classList.remove('active');
+  }
+</script>
+{% endblock %}

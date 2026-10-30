@@ -1,0 +1,106 @@
+[
+  {
+    "provinsi_kode": "31",
+    "provinsi_nama": "DKI JAKARTA",
+    "kab_kota_kode": "31.74",
+    "kab_kota_nama": "KOTA JAKARTA SELATAN",
+    "kecamatan_kode": "31.74.05",
+    "kecamatan_nama": "KEBAYORAN LAMA"
+  },
+  {
+    "provinsi_kode": "31",
+    "provinsi_nama": "DKI JAKARTA",
+    "kab_kota_kode": "31.74",
+    "kab_kota_nama": "KOTA JAKARTA SELATAN",
+    "kecamatan_kode": "31.74.06",
+    "kecamatan_nama": "KEBAYORAN BARU"
+  },
+  {
+    "provinsi_kode": "31",
+    "provinsi_nama": "DKI JAKARTA",
+    "kab_kota_kode": "31.72",
+    "kab_kota_nama": "KOTA JAKARTA UTARA",
+    "kecamatan_kode": "31.72.01",
+    "kecamatan_nama": "PENJARINGAN"
+  },
+  {
+    "provinsi_kode": "32",
+    "provinsi_nama": "JAWA BARAT",
+    "kab_kota_kode": "32.04",
+    "kab_kota_nama": "KABUPATEN BANDUNG",
+    "kecamatan_kode": "32.04.11",
+    "kecamatan_nama": "DAYEUHKOLOT"
+  },
+  {
+    "provinsi_kode": "32",
+    "provinsi_nama": "JAWA BARAT",
+    "kab_kota_kode": "32.04",
+    "kab_kota_nama": "KABUPATEN BANDUNG",
+    "kecamatan_kode": "32.04.12",
+    "kecamatan_nama": "BALEENDAH"
+  },
+  {
+    "provinsi_kode": "32",
+    "provinsi_nama": "JAWA BARAT",
+    "kab_kota_kode": "32.04",
+    "kab_kota_nama": "KABUPATEN BANDUNG",
+    "kecamatan_kode": "32.04.13",
+    "kecamatan_nama": "BOJONGSOANG"
+  },
+  {
+    "provinsi_kode": "36",
+    "provinsi_nama": "BANTEN",
+    "kab_kota_kode": "36.74",
+    "kab_kota_nama": "KOTA TANGERANG SELATAN",
+    "kecamatan_kode": "36.74.03",
+    "kecamatan_nama": "CIPUTAT"
+  },
+  {
+    "provinsi_kode": "13",
+    "provinsi_nama": "SUMATERA BARAT",
+    "kab_kota_kode": "13.06",
+    "kab_kota_nama": "KABUPATEN AGAM",
+    "kecamatan_kode": "13.06.01",
+    "kecamatan_nama": "TANJUNG RAYA"
+  },
+  {
+    "provinsi_kode": "13",
+    "provinsi_nama": "SUMATERA BARAT",
+    "kab_kota_kode": "13.06",
+    "kab_kota_nama": "KABUPATEN AGAM",
+    "kecamatan_kode": "13.06.12",
+    "kecamatan_nama": "MALALAK"
+  },
+  {
+    "provinsi_kode": "94",
+    "provinsi_nama": "PAPUA TENGAH",
+    "kab_kota_kode": "94.01",
+    "kab_kota_nama": "KABUPATEN NABIRE",
+    "kecamatan_kode": "94.01.01",
+    "kecamatan_nama": "DISTRIK NABIRE"
+  },
+  {
+    "provinsi_kode": "35",
+    "provinsi_nama": "JAWA TIMUR",
+    "kab_kota_kode": "35.08",
+    "kab_kota_nama": "KABUPATEN LUMAJANG",
+    "kecamatan_kode": "35.08.01",
+    "kecamatan_nama": "PRONOJIWO"
+  },
+  {
+    "provinsi_kode": "33",
+    "provinsi_nama": "JAWA TENGAH",
+    "kab_kota_kode": "33.08",
+    "kab_kota_nama": "KABUPATEN MAGELANG",
+    "kecamatan_kode": "33.08.01",
+    "kecamatan_nama": "SRUMBUNG"
+  },
+  {
+    "provinsi_kode": "74",
+    "provinsi_nama": "SULAWESI TENGGARA",
+    "kab_kota_kode": "74.71",
+    "kab_kota_nama": "KOTA KENDARI",
+    "kecamatan_kode": "74.71.01",
+    "kecamatan_nama": "MANDONGA"
+  }
+]

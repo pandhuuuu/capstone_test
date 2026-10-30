@@ -1,0 +1,42 @@
+<!-- Modal 2: Buka Kunci Darurat (Emergency Unlock) -->
+<div id="modalUnlockCycle" class="modal-backdrop">
+  <div class="modal-card max-w-[500px]">
+    <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+      <h3 class="text-base font-bold text-rose-800 flex items-center gap-2">
+        <span class="material-symbols-outlined text-rose-700 text-[22px]">lock_open</span>
+        Buka Kunci Darurat (Emergency Unlock)
+      </h3>
+      <button onclick="closeUnlockModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+    </div>
+
+    <form method="POST" action="{% url 'unlock_cycle' %}">
+      {% csrf_token %}
+      <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-900 mb-4 flex items-start gap-2.5">
+        <span class="material-symbols-outlined text-[20px] text-rose-700 mt-0.5">error</span>
+        <div class="leading-relaxed">
+          <strong>Kepatuhan Audit:</strong> Pembukaan kunci darurat hanya diperkenankan jika ada ralat resmi susulan dari BPBD. Alasan pembukaan kunci <strong>wajib diisi</strong> dan tercatat permanen dalam Jejak Audit.
+        </div>
+      </div>
+
+      <div class="mb-3.5">
+        <label class="block text-xs font-bold uppercase text-slate-700 mb-1">Nama Supervisor Pemohon:</label>
+        <input type="text" name="supervisor_name" class="filter-input w-full font-semibold" value="Supervisor Piket Kasatgas" required>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-xs font-bold uppercase text-rose-800 mb-1">
+          Alasan Pembukaan Kunci Darurat: <span class="text-red-500">*</span>
+        </label>
+        <textarea name="alasan_unlock" class="filter-input w-full h-[85px] border-rose-300 focus:border-rose-500 font-sans" placeholder="Contoh: Ralat penyesuaian korban meninggal susulan dari Pusdalops BPBD Kab. Bandung..." required></textarea>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
+        <button type="button" onclick="closeUnlockModal()" class="btn btn-secondary">Batal</button>
+        <button type="submit" class="btn bg-rose-700 hover:bg-rose-800 text-white font-bold">
+          <span class="material-symbols-outlined text-[16px]">lock_open</span>
+          <span>Buka Kunci Siklus</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

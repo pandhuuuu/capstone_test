@@ -1,0 +1,185 @@
+<div id="modalVerifikasi" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-slate-900/60 backdrop-blur-sm">
+  <div class="relative w-full max-w-[768px] my-auto bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-slate-200">
+    <!-- Modal Header -->
+    <header class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex flex-col gap-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded font-mono text-[11px] bg-orange-100 text-orange-800 font-bold" id="vModalBadgeCode">
+            FORM VERIFIKASI
+          </span>
+          <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 uppercase font-semibold">
+            PRIORITAS TINGGI
+          </span>
+        </div>
+        <h2 class="text-base font-bold text-slate-900 font-display">
+          Verifikasi Lapangan &amp; Koreksi Metadata Kejadian
+        </h2>
+      </div>
+      <button onclick="closeVerificationModal()" class="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-slate-700 transition-colors cursor-pointer" type="button">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </header>
+
+    <!-- Modal Form Body -->
+    <form id="verificationForm" method="POST" action="" class="flex-1 overflow-y-auto px-6 py-4 space-y-4 text-xs">
+      {% csrf_token %}
+
+      <!-- REFERENCE BANNER -->
+      <section class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 flex items-start gap-3">
+        <div class="w-8 h-8 rounded bg-slate-200 flex items-center justify-center shrink-0 text-slate-600">
+          <span class="material-symbols-outlined text-[18px]">feed</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
+            <span class="font-mono text-[10px] uppercase text-slate-500 font-semibold">Rujukan Berita Siber Awal</span>
+            <span class="font-mono text-[10px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700" id="vLeadPortal">Detikcom</span>
+          </div>
+          <p class="font-semibold text-slate-900 text-xs leading-snug line-clamp-2 mb-1" id="vLeadJudul">Memuat rujukan berita...</p>
+          <a id="vLeadLink" href="#" target="_blank" class="inline-flex items-center gap-1 font-mono text-[11px] text-blue-600 hover:underline">
+            <span>Buka Berita Asli</span>
+            <span class="material-symbols-outlined text-[13px]">open_in_new</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- BLOK 1: WILAYAH ADMINISTRATIF KEMENDAGRI -->
+      <fieldset class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <legend class="font-bold text-slate-900 uppercase font-display flex items-center gap-1.5 text-xs">
+            <span class="w-5 h-5 rounded-full bg-[#0B192C] text-white font-mono text-[11px] flex items-center justify-center">1</span>
+            <span>Wilayah Administratif Kemendagri</span>
+          </legend>
+          <span class="font-mono text-[11px] bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-700 font-semibold" id="vKodeKemendagri">
+            Kode: -
+          </span>
+        </div>
+        <div>
+          <label class="block text-slate-600 font-semibold mb-1">Sesuaikan Wilayah Kecamatan / Kabupaten Kemendagri:</label>
+          <select name="id_wilayah" id="vSelectWilayah" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:ring-1 focus:ring-orange-500">
+            {% for kec in kecamatans %}
+            <option value="{{ kec.id_wilayah }}">{{ kec.id_wilayah }} - {{ kec.hierarchy_display }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </fieldset>
+
+      <!-- BLOK 2: WAKTU KEJADIAN RIIL -->
+      <fieldset class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2.5">
+        <legend class="font-bold text-slate-900 uppercase font-display flex items-center gap-1.5 text-xs">
+          <span class="w-5 h-5 rounded-full bg-[#0B192C] text-white font-mono text-[11px] flex items-center justify-center">2</span>
+          <span>Waktu Kejadian Riil (Tervalidasi)</span>
+        </legend>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-600 font-semibold mb-1">Tanggal Kejadian Faktual</label>
+            <input name="incident_date" id="vDate" type="date" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:ring-1 focus:ring-orange-500"/>
+          </div>
+          <div>
+            <label class="block text-slate-600 font-semibold mb-1">Pukul Riil Kejadian (WIB)</label>
+            <input name="incident_time" id="vTime" type="text" placeholder="13:45 WIB" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono focus:ring-1 focus:ring-orange-500"/>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOK 3: FAKTA DAMPAK LAPANGAN FAKTUAL -->
+      <fieldset class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2.5">
+        <legend class="font-bold text-slate-900 uppercase font-display flex items-center gap-1.5 text-xs">
+          <span class="w-5 h-5 rounded-full bg-[#0B192C] text-white font-mono text-[11px] flex items-center justify-center">3</span>
+          <span>Fakta Dampak Lapangan</span>
+        </legend>
+        <div>
+          <span class="block font-mono text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1.5">Korban Manusia:</span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div class="bg-white p-2 rounded border border-slate-200">
+              <label class="block text-[10px] text-slate-500 font-semibold">Meninggal</label>
+              <input name="korban_meninggal" id="vMeninggal" type="number" min="0" value="0" class="w-full font-bold text-sm bg-slate-50 rounded px-1.5 py-0.5 mt-0.5 border-0 focus:ring-1 focus:ring-orange-500"/>
+            </div>
+            <div class="bg-white p-2 rounded border border-slate-200">
+              <label class="block text-[10px] text-slate-500 font-semibold">Luka-Luka</label>
+              <input name="korban_luka" id="vLuka" type="number" min="0" value="0" class="w-full font-bold text-sm bg-slate-50 rounded px-1.5 py-0.5 mt-0.5 border-0 focus:ring-1 focus:ring-orange-500"/>
+            </div>
+            <div class="bg-white p-2 rounded border border-slate-200">
+              <label class="block text-[10px] text-slate-500 font-semibold">Hilang</label>
+              <input name="korban_hilang" id="vHilang" type="number" min="0" value="0" class="w-full font-bold text-sm bg-slate-50 rounded px-1.5 py-0.5 mt-0.5 border-0 focus:ring-1 focus:ring-orange-500"/>
+            </div>
+            <div class="bg-orange-50 p-2 rounded border border-orange-200">
+              <label class="block text-[10px] text-orange-800 font-bold">Mengungsi</label>
+              <input name="korban_mengungsi" id="vMengungsi" type="number" min="0" value="0" class="w-full font-bold text-sm bg-white rounded px-1.5 py-0.5 mt-0.5 border-0 focus:ring-1 focus:ring-orange-500 text-orange-900"/>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          <div>
+            <label class="block text-[10px] text-slate-600 font-semibold mb-1">Rumah Terendam / Rusak (Unit)</label>
+            <input name="rumah_terendam" id="vRumah" type="number" min="0" value="0" class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs font-mono"/>
+          </div>
+          <div>
+            <label class="block text-[10px] text-slate-600 font-semibold mb-1">Luas Terdampak (Ha)</label>
+            <input name="luas_terdampak" id="vLuas" type="number" min="0" value="0" class="w-full bg-white border border-slate-300 rounded px-2 py-1 text-xs font-mono"/>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- BLOK 4: UPAYA TRC & KONDISI MUTAKHIR -->
+      <fieldset class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2.5">
+        <legend class="font-bold text-slate-900 uppercase font-display flex items-center gap-1.5 text-xs">
+          <span class="w-5 h-5 rounded-full bg-[#0B192C] text-white font-mono text-[11px] flex items-center justify-center">4</span>
+          <span>Upaya TRC &amp; Kondisi Mutakhir</span>
+        </legend>
+        <div>
+          <label class="block text-[10px] text-slate-600 font-semibold mb-1">Upaya Penanganan TRC / BPBD:</label>
+          <textarea name="upaya_trc" id="vUpaya" rows="2" class="w-full p-2 bg-white border border-slate-300 rounded text-xs leading-relaxed focus:ring-1 focus:ring-orange-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-600 font-semibold mb-1">Kondisi Terkini di Lapangan:</label>
+          <textarea name="kondisi_lapangan" id="vKondisi" rows="2" class="w-full p-2 bg-white border border-slate-300 rounded text-xs leading-relaxed focus:ring-1 focus:ring-orange-500"></textarea>
+        </div>
+      </fieldset>
+
+      <!-- BLOK 5: STATUS VERIFIKASI & AUDIT PETUGAS -->
+      <fieldset class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 space-y-2.5">
+        <legend class="font-bold text-slate-900 uppercase font-display flex items-center gap-1.5 text-xs">
+          <span class="w-5 h-5 rounded-full bg-[#0B192C] text-white font-mono text-[11px] flex items-center justify-center">5</span>
+          <span>Status Verifikasi &amp; Audit Petugas</span>
+        </legend>
+        <div>
+          <label class="block text-[10px] text-slate-600 font-semibold mb-1.5">Tentukan Keputusan Verifikasi:</label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <label class="cursor-pointer bg-white border border-slate-200 p-2.5 rounded flex items-center gap-2 hover:bg-slate-100">
+              <input type="radio" name="verification_status" value="PENDING" id="radio-pending" class="accent-[#EA580C]"/>
+              <span class="font-semibold text-xs text-amber-800">Pending / Antrean</span>
+            </label>
+            <label class="cursor-pointer bg-white border border-slate-200 p-2.5 rounded flex items-center gap-2 hover:bg-slate-100">
+              <input type="radio" name="verification_status" value="TERVERIFIKASI" id="radio-verified" class="accent-[#EA580C]"/>
+              <span class="font-bold text-xs text-emerald-800">Terverifikasi Resmi</span>
+            </label>
+            <label class="cursor-pointer bg-white border border-slate-200 p-2.5 rounded flex items-center gap-2 hover:bg-slate-100">
+              <input type="radio" name="verification_status" value="HOAKS" id="radio-hoax" class="accent-[#EA580C]"/>
+              <span class="font-semibold text-xs text-red-800">Hoaks / Ditolak</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-600 font-semibold mb-1">Personel Satgas / Kontak Dikonfirmasi:</label>
+          <input name="petugas_validasi" id="vPetugas" type="text" placeholder="Budi Santoso (TRC BPBD Kab. Bandung)" class="w-full bg-white border border-slate-300 rounded px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-orange-500"/>
+        </div>
+      </fieldset>
+
+      <!-- Modal Footer -->
+      <footer class="pt-3 flex items-center justify-between border-t border-slate-200">
+        <div class="font-mono text-[10px] text-slate-500">
+          Operator: <strong>Shift 1 (Budi)</strong> • PUSDALOPS PB
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closeVerificationModal()" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors cursor-pointer">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-lg bg-[#EA580C] hover:bg-[#C2410C] text-white font-semibold text-xs shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">save</span>
+            <span>Simpan &amp; Perbarui Data</span>
+          </button>
+        </div>
+      </footer>
+    </form>
+  </div>
+</div>

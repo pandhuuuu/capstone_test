@@ -1,0 +1,247 @@
+import os
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+output_dir = os.path.join(os.path.dirname(__file__), 'docs', 'capstone', 'diagrams')
+os.makedirs(output_dir, exist_ok=True)
+
+# Grid Layout Profesional 2-Kolom Sempurna (OMG UML 2.5)
+# Lebar kanvas: 1360, Tinggi kanvas: 820
+svg_clean = """<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 820" width="1360" height="820" style="background-color: #ffffff; font-family: 'Segoe UI', Arial, sans-serif;">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow-inc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284c7"/>
+    </marker>
+    <marker id="arrow-ext" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#d97706"/>
+    </marker>
+  </defs>
+
+  <!-- TITLE -->
+  <text x="680" y="38" text-anchor="middle" font-size="20" font-weight="bold" fill="#0f2a4a">USE CASE DIAGRAM — SISTEM INFORMASI PUSDALOPS BNPB</text>
+  <text x="680" y="60" text-anchor="middle" font-size="12" fill="#64748b">Standar Notasi: OMG UML 2.5.1 | Penanggung Jawab: Adel (NIM. 1202220004)</text>
+
+  <!-- SYSTEM BOUNDARY -->
+  <rect x="250" y="85" width="860" height="710" rx="10" ry="10" fill="#f8fafc" stroke="#1e293b" stroke-width="2" filter="url(#shadow)"/>
+  
+  <!-- Boundary Header Tab -->
+  <path d="M 250 95 Q 250 85 260 85 L 610 85 L 625 115 L 250 115 Z" fill="#1e293b"/>
+  <text x="270" y="106" font-size="13" font-weight="bold" fill="#ffffff">Batas Sistem: Pusdalops-PB Web Application</text>
+
+  <!-- ================= KOLOM 1: INGESTION & ANTREAN (x=460) ================= -->
+  <!-- UC-01 -->
+  <g id="uc-01">
+    <ellipse cx="460" cy="165" rx="150" ry="28" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="460" y="162" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-01: Scraping Berita Daring</text>
+    <text x="460" y="177" text-anchor="middle" font-size="10" fill="#64748b">(Scheduled &amp; On-Demand)</text>
+  </g>
+
+  <!-- UC-02 -->
+  <g id="uc-02">
+    <ellipse cx="460" cy="275" rx="150" ry="28" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="460" y="272" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-02: Memantau Antrean 24 Jam</text>
+    <text x="460" y="287" text-anchor="middle" font-size="10" fill="#64748b">(Windowing 07.00 - 07.00 WIB)</text>
+  </g>
+
+  <!-- UC-03 -->
+  <g id="uc-03">
+    <ellipse cx="460" cy="385" rx="150" ry="28" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="460" y="382" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-03: Filter 4 Tab Status</text>
+    <text x="460" y="397" text-anchor="middle" font-size="10" fill="#64748b">(Pending, Valid, Hoaks, Semua)</text>
+  </g>
+
+  <!-- UC-04 -->
+  <g id="uc-04">
+    <ellipse cx="460" cy="495" rx="150" ry="28" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="460" y="492" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-04: Gabung Berita Susulan</text>
+    <text x="460" y="507" text-anchor="middle" font-size="10" fill="#64748b">(Merge Duplicates)</text>
+  </g>
+
+  <!-- UC-05 -->
+  <g id="uc-05">
+    <ellipse cx="460" cy="605" rx="150" ry="28" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="460" y="602" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-05: Input Kejadian Manual</text>
+    <text x="460" y="617" text-anchor="middle" font-size="10" fill="#64748b">(Panggilan Radio HF / Telepon)</text>
+  </g>
+
+  <!-- ================= KOLOM 2: VERIFIKASI & EKSPOR (x=900) ================= -->
+  <!-- UC-06 -->
+  <g id="uc-06">
+    <ellipse cx="900" cy="165" rx="150" ry="28" fill="#ffffff" stroke="#059669" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="900" y="162" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-06: Verifikasi Metadata 5 Blok</text>
+    <text x="900" y="177" text-anchor="middle" font-size="10" fill="#64748b">(Toponimi, Dampak, Upaya, Status)</text>
+  </g>
+
+  <!-- UC-07 -->
+  <g id="uc-07">
+    <ellipse cx="900" cy="275" rx="150" ry="28" fill="#ffffff" stroke="#059669" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="900" y="272" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-07: Catat Bantahan Hoaks</text>
+    <text x="900" y="287" text-anchor="middle" font-size="10" fill="#64748b">(Audit Forensik Penolakan)</text>
+  </g>
+
+  <!-- UC-08 -->
+  <g id="uc-08">
+    <ellipse cx="900" cy="385" rx="150" ry="28" fill="#ffffff" stroke="#dc2626" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="900" y="382" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-08: Kunci Siklus Laporan</text>
+    <text x="900" y="397" text-anchor="middle" font-size="10" fill="#64748b">(Lock Snapshot Otorisasi)</text>
+  </g>
+
+  <!-- UC-09 -->
+  <g id="uc-09">
+    <ellipse cx="900" cy="495" rx="150" ry="28" fill="#ffffff" stroke="#dc2626" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="900" y="492" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-09: Buka Kunci Darurat</text>
+    <text x="900" y="507" text-anchor="middle" font-size="10" fill="#64748b">(Emergency Unlock + Log Alasan)</text>
+  </g>
+
+  <!-- UC-10 -->
+  <g id="uc-10">
+    <ellipse cx="900" cy="605" rx="150" ry="28" fill="#ffffff" stroke="#0284c7" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="900" y="602" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">UC-10: Ekspor Word (.docx) Bagian A</text>
+    <text x="900" y="617" text-anchor="middle" font-size="10" fill="#64748b">(Format Dinas BNPB &lt;= 5 Detik)</text>
+  </g>
+
+  <!-- ================= BARIS BAWAH (x=500 dan x=860) ================= -->
+  <!-- UC-11 -->
+  <g id="uc-11">
+    <ellipse cx="500" cy="720" rx="145" ry="26" fill="#ffffff" stroke="#0284c7" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="500" y="717" text-anchor="middle" font-size="11" font-weight="bold" fill="#0f172a">UC-11: Salin Ringkasan WhatsApp</text>
+    <text x="500" y="731" text-anchor="middle" font-size="9.5" fill="#64748b">(Teks Terklaster Format Pimpinan)</text>
+  </g>
+
+  <!-- UC-12 -->
+  <g id="uc-12">
+    <ellipse cx="860" cy="720" rx="145" ry="26" fill="#ffffff" stroke="#475569" stroke-width="1.8" filter="url(#shadow)"/>
+    <text x="860" y="717" text-anchor="middle" font-size="11" font-weight="bold" fill="#0f172a">UC-12: Kelola Master Wilayah</text>
+    <text x="860" y="731" text-anchor="middle" font-size="9.5" fill="#64748b">(Sinkronisasi Kepmendagri &amp; Akun)</text>
+  </g>
+
+  <!-- ================= INCLUDE & EXTEND ARROWS ================= -->
+  <!-- UC-04 extend UC-02 -->
+  <path d="M 460 467 L 460 307" stroke="#d97706" stroke-width="1.6" stroke-dasharray="5,4" marker-end="url(#arrow-ext)"/>
+  <rect x="425" y="375" width="70" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+  <text x="460" y="388" text-anchor="middle" font-size="10" font-weight="bold" fill="#b45309">&lt;&lt;extend&gt;&gt;</text>
+
+  <!-- UC-07 extend UC-06 -->
+  <path d="M 900 247 L 900 197" stroke="#d97706" stroke-width="1.6" stroke-dasharray="5,4" marker-end="url(#arrow-ext)"/>
+  <rect x="865" y="213" width="70" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+  <text x="900" y="226" text-anchor="middle" font-size="10" font-weight="bold" fill="#b45309">&lt;&lt;extend&gt;&gt;</text>
+
+  <!-- UC-08 include UC-02 (Horizontal connection) -->
+  <path d="M 750 385 L 614 285" stroke="#0284c7" stroke-width="1.6" stroke-dasharray="5,4" marker-end="url(#arrow-inc)"/>
+  <rect x="655" y="325" width="72" height="18" rx="3" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1"/>
+  <text x="691" y="338" text-anchor="middle" font-size="10" font-weight="bold" fill="#0369a1">&lt;&lt;include&gt;&gt;</text>
+
+  <!-- ================= AKTOR 1: OPERATOR (LEFT) ================= -->
+  <g id="actor-operator" transform="translate(100, 310)">
+    <circle cx="25" cy="18" r="13" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+    <line x1="25" y1="31" x2="25" y2="70" stroke="#0f172a" stroke-width="2.5"/>
+    <line x1="2" y1="46" x2="48" y2="46" stroke="#0f172a" stroke-width="2.5"/>
+    <line x1="25" y1="70" x2="8" y2="108" stroke="#0f172a" stroke-width="2.5"/>
+    <line x1="25" y1="70" x2="42" y2="108" stroke="#0f172a" stroke-width="2.5"/>
+    <text x="25" y="130" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a">Operator Meja Piket</text>
+    <text x="25" y="145" text-anchor="middle" font-size="10.5" fill="#64748b">(Shift 1, 2, 3)</text>
+  </g>
+
+  <!-- Solid Association Lines Operator -->
+  <line x1="155" y1="340" x2="310" y2="165" stroke="#334155" stroke-width="1.5"/>
+  <line x1="155" y1="355" x2="310" y2="275" stroke="#334155" stroke-width="1.5"/>
+  <line x1="155" y1="370" x2="310" y2="385" stroke="#334155" stroke-width="1.5"/>
+  <line x1="155" y1="385" x2="310" y2="495" stroke="#334155" stroke-width="1.5"/>
+  <line x1="155" y1="400" x2="310" y2="605" stroke="#334155" stroke-width="1.5"/>
+  <line x1="155" y1="420" x2="355" y2="720" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- Operator to Verification in Col 2 -->
+  <path d="M 155 330 Q 230 190 750 165" fill="none" stroke="#059669" stroke-width="1.3" stroke-dasharray="3,3"/>
+
+  <!-- ================= AKTOR 2: SISTEM EKSTERNAL (LEFT BOTTOM) ================= -->
+  <g id="actor-external" transform="translate(60, 140)">
+    <rect x="0" y="0" width="125" height="55" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+    <text x="62" y="20" text-anchor="middle" font-size="10" font-weight="bold" fill="#0284c7">&lt;&lt;system&gt;&gt;</text>
+    <text x="62" y="36" text-anchor="middle" font-size="11" font-weight="bold" fill="#0f172a">BMKG &amp; Portal Berita</text>
+  </g>
+  <line x1="185" y1="165" x2="310" y2="165" stroke="#0284c7" stroke-width="1.8"/>
+
+  <!-- ================= AKTOR 3: SUPERVISOR (RIGHT) ================= -->
+  <g id="actor-supervisor" transform="translate(1200, 390)">
+    <circle cx="25" cy="18" r="13" fill="#ffffff" stroke="#b91c1c" stroke-width="2.5"/>
+    <line x1="25" y1="31" x2="25" y2="70" stroke="#b91c1c" stroke-width="2.5"/>
+    <line x1="2" y1="46" x2="48" y2="46" stroke="#b91c1c" stroke-width="2.5"/>
+    <line x1="25" y1="70" x2="8" y2="108" stroke="#b91c1c" stroke-width="2.5"/>
+    <line x1="25" y1="70" x2="42" y2="108" stroke="#b91c1c" stroke-width="2.5"/>
+    <text x="25" y="130" text-anchor="middle" font-size="12" font-weight="bold" fill="#991b1b">Supervisor</text>
+    <text x="25" y="145" text-anchor="middle" font-size="10.5" fill="#64748b">Pusdalops BNPB</text>
+  </g>
+
+  <!-- Solid Association Lines Supervisor -->
+  <line x1="1200" y1="420" x2="1050" y2="385" stroke="#b91c1c" stroke-width="1.5"/>
+  <line x1="1200" y1="440" x2="1050" y2="495" stroke="#b91c1c" stroke-width="1.5"/>
+  <line x1="1200" y1="460" x2="1050" y2="605" stroke="#b91c1c" stroke-width="1.5"/>
+  <line x1="1200" y1="480" x2="1005" y2="720" stroke="#b91c1c" stroke-width="1.5"/>
+  <!-- Supervisor juga pantau antrean -->
+  <path d="M 1200 400 Q 1120 310 610 275" fill="none" stroke="#b91c1c" stroke-width="1.3" stroke-dasharray="3,3"/>
+
+  <!-- ================= AKTOR 4: SATGAS BPBD (RIGHT TOP) ================= -->
+  <g id="actor-bpbd" transform="translate(1200, 130)">
+    <circle cx="25" cy="18" r="13" fill="#ffffff" stroke="#059669" stroke-width="2.5"/>
+    <line x1="25" y1="31" x2="25" y2="70" stroke="#059669" stroke-width="2.5"/>
+    <line x1="2" y1="46" x2="48" y2="46" stroke="#059669" stroke-width="2.5"/>
+    <line x1="25" y1="70" x2="8" y2="108" stroke="#059669" stroke-width="2.5"/>
+    <line x1="25" y1="70" x2="42" y2="108" stroke="#059669" stroke-width="2.5"/>
+    <text x="25" y="130" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#065f46">Satgas BPBD</text>
+    <text x="25" y="145" text-anchor="middle" font-size="10" fill="#64748b">(Prov / Kab / Kota)</text>
+  </g>
+  <!-- BPBD Konfirmasi -->
+  <line x1="1200" y1="165" x2="1050" y2="165" stroke="#059669" stroke-width="1.5"/>
+  <line x1="1200" y1="180" x2="1050" y2="275" stroke="#059669" stroke-width="1.5"/>
+
+</svg>
+"""
+
+svg_file = os.path.join(output_dir, 'gambar_usecase_diagram_pro.svg')
+with open(svg_file, 'w', encoding='utf-8') as f:
+    f.write(svg_clean)
+
+# Render to PNG using Selenium
+html_wrapper = f"""<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body, html {{ margin: 0; padding: 0; background: #ffffff; display: inline-block; }}
+    svg {{ display: block; }}
+  </style>
+</head>
+<body>
+  {svg_clean}
+</body>
+</html>
+"""
+
+html_file = os.path.join(output_dir, 'temp_clean.html')
+with open(html_file, 'w', encoding='utf-8') as f:
+    f.write(html_wrapper)
+
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--disable-gpu')
+options.add_argument('--force-device-scale-factor=2')
+
+driver = webdriver.Chrome(options=options)
+driver.get(f'file:///{html_file.replace(os.sep, "/")}')
+
+body = driver.find_element("tag name", "body")
+w = 1360 * 2
+h = 820 * 2
+driver.set_window_size(1400, 860)
+
+png_file = os.path.join(output_dir, 'gambar_usecase_diagram.png')
+body.screenshot(png_file)
+driver.quit()
+
+if os.path.exists(html_file):
+    os.remove(html_file)
+
+print(f"Professional Clean Use Case Diagram saved to: {png_file}")

@@ -1,0 +1,383 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}PUSDALOPS BNPB - Dasbor Pemantauan Kebencanaan 24 Jam{% endblock %}
+
+{% block content %}
+{% if current_cycle.is_locked %}
+<div class="mx-6 mt-3 px-4 py-2.5 bg-rose-50 border border-rose-300 rounded-lg flex items-center justify-between text-xs text-rose-900 shadow-xs">
+  <div class="flex items-center gap-2">
+    <span class="material-symbols-outlined text-[18px] text-rose-700">lock</span>
+    <span>
+      <strong>SIKLUS OPERASIONAL TERKUNCI:</strong> Lembar laporan <strong>{{ current_cycle.kode_siklus }}</strong> telah dikunci resmi oleh <strong>{{ current_cycle.locked_by|default:"Supervisor" }}</strong> pada {{ current_cycle.locked_at|date:"d/m/Y H:i" }} WIB. Seluruh entri dalam mode <em>Read-Only</em>.
+    </span>
+  </div>
+  <a href="{% url 'export_center' %}" class="font-bold underline text-rose-800 hover:text-rose-950 flex items-center gap-1">
+    Buka Pusat Ekspor &rarr;
+  </a>
+</div>
+{% endif %}
+
+<!-- 3. STATUS CONTROL & ACTION BAR (Above the data table) -->
+<div class="px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+  <!-- Left: 4 Horizontal Segmented Tabs with Pill Counters -->
+  <div class="flex flex-wrap items-center gap-2">
+    <!-- Tab 1: Belum Terverifikasi (Pending) -->
+    <a href="?tab=PENDING{% if search_query %}&q={{ search_query }}{% endif %}{% if provinsi_filter %}&provinsi={{ provinsi_filter }}{% endif %}{% if bencana_filter %}&bencana={{ bencana_filter }}{% endif %}"
+       class="{% if status_tab == 'PENDING' %}bg-white border border-slate-300 font-semibold text-slate-900 shadow-xs{% else %}text-slate-600 hover:text-slate-900 border border-transparent hover:border-slate-200{% endif %} px-4 py-2 rounded-lg flex items-center gap-2 text-sm transition-all cursor-pointer">
+      <span>Belum Terverifikasi (Pending)</span>
+      <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full text-xs font-mono">{{ counts.pending }}</span>
+    </a>
+
+    <!-- Tab 2: Terverifikasi -->
+    <a href="?tab=TERVERIFIKASI{% if search_query %}&q={{ search_query }}{% endif %}{% if provinsi_filter %}&provinsi={{ provinsi_filter }}{% endif %}{% if bencana_filter %}&bencana={{ bencana_filter }}{% endif %}"
+       class="{% if status_tab == 'TERVERIFIKASI' %}bg-white border border-slate-300 font-semibold text-slate-900 shadow-xs{% else %}text-slate-600 hover:text-slate-900 border border-transparent hover:border-slate-200{% endif %} px-4 py-2 rounded-lg flex items-center gap-2 text-sm transition-all cursor-pointer">
+      <span>Terverifikasi</span>
+      <span class="bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full text-xs font-mono">{{ counts.terverifikasi }}</span>
+    </a>
+
+    <!-- Tab 3: Hoaks -->
+    <a href="?tab=HOAKS{% if search_query %}&q={{ search_query }}{% endif %}{% if provinsi_filter %}&provinsi={{ provinsi_filter }}{% endif %}{% if bencana_filter %}&bencana={{ bencana_filter }}{% endif %}"
+       class="{% if status_tab == 'HOAKS' %}bg-white border border-slate-300 font-semibold text-slate-900 shadow-xs{% else %}text-slate-600 hover:text-slate-900 border border-transparent hover:border-slate-200{% endif %} px-4 py-2 rounded-lg flex items-center gap-2 text-sm transition-all cursor-pointer">
+      <span>Hoaks</span>
+      <span class="bg-red-100 text-red-800 font-semibold px-2 py-0.5 rounded-full text-xs font-mono">{{ counts.hoaks }}</span>
+    </a>
+
+    <!-- Tab 4: Semua Data -->
+    <a href="?tab=SEMUA{% if search_query %}&q={{ search_query }}{% endif %}{% if provinsi_filter %}&provinsi={{ provinsi_filter }}{% endif %}{% if bencana_filter %}&bencana={{ bencana_filter }}{% endif %}"
+       class="{% if status_tab == 'SEMUA' %}bg-white border border-slate-300 font-semibold text-slate-900 shadow-xs{% else %}text-slate-600 hover:text-slate-900 border border-transparent hover:border-slate-200{% endif %} px-4 py-2 rounded-lg flex items-center gap-2 text-sm transition-all cursor-pointer">
+      <span>Semua Data</span>
+      <span class="bg-slate-100 text-slate-700 font-semibold px-2 py-0.5 rounded-full text-xs font-mono">{{ counts.semua }}</span>
+    </a>
+  </div>
+
+  <!-- Right: Top-Level Action Buttons -->
+  <div class="flex items-center flex-wrap gap-2.5">
+    <!-- Tambah Kejadian Manual -->
+    <button onclick="openManualModal()" class="bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-semibold text-xs px-3.5 py-2 rounded-lg shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer" type="button">
+      <span class="material-symbols-outlined text-[16px] text-slate-600">add</span>
+      <span>Tambah Kejadian Manual</span>
+    </button>
+
+    <!-- Salin Format WA -->
+    <button onclick="copyWhatsAppSummary()" class="bg-[#16A34A] hover:bg-green-700 text-white font-semibold text-xs px-3.5 py-2 rounded-lg shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer" type="button">
+      <span class="material-symbols-outlined text-[16px]">content_copy</span>
+      <span>Salin Format WA</span>
+    </button>
+
+    <!-- Unduh Word (.docx) Bagian A -->
+    <a href="{% url 'export_word' %}" class="bg-[#EA580C] hover:bg-[#C2410C] text-white font-semibold text-xs px-4 py-2 rounded-lg shadow-sm flex items-center gap-1.5 transition-colors cursor-pointer">
+      <span class="material-symbols-outlined text-[16px]">description</span>
+      <span>Unduh Word (.docx) Bagian A</span>
+    </a>
+  </div>
+</div>
+
+<!-- 4. FILTER & SEARCH BAR -->
+<form method="GET" action="{% url 'index' %}" class="px-6 pb-3 flex flex-wrap items-center justify-between gap-3">
+  <input type="hidden" name="tab" value="{{ status_tab }}"/>
+
+  <!-- Search Input -->
+  <div class="relative w-full sm:w-96">
+    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+      <span class="material-symbols-outlined text-[18px]">search</span>
+    </span>
+    <input name="q" value="{{ search_query }}" class="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 shadow-xs" placeholder="Cari kata kunci, wilayah, nama bencana..." type="search"/>
+  </div>
+
+  <!-- Filter Dropdowns & Auto-Refresh -->
+  <div class="flex flex-wrap items-center gap-2.5">
+    <!-- Dropdown 1: Provinsi -->
+    <select name="provinsi" onchange="this.form.submit()" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer shadow-xs">
+      <option value="">Semua Provinsi (38)</option>
+      {% for p in provinces %}
+      <option value="{{ p.nama_wilayah }}" {% if provinsi_filter == p.nama_wilayah %}selected{% endif %}>{{ p.nama_wilayah }}</option>
+      {% endfor %}
+    </select>
+
+    <!-- Dropdown 2: Jenis Bencana -->
+    <select name="bencana" onchange="this.form.submit()" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer shadow-xs">
+      <option value="">Semua Jenis Bencana</option>
+      <option value="Banjir" {% if bencana_filter == 'Banjir' %}selected{% endif %}>Banjir</option>
+      <option value="Karhutla" {% if bencana_filter == 'Karhutla' %}selected{% endif %}>Karhutla</option>
+      <option value="Tanah Longsor" {% if bencana_filter == 'Tanah Longsor' %}selected{% endif %}>Tanah Longsor</option>
+      <option value="Gempa Bumi / Tsunami" {% if bencana_filter == 'Gempa Bumi / Tsunami' %}selected{% endif %}>Gempa Bumi / Tsunami</option>
+    </select>
+
+    <!-- Auto-refresh Badge -->
+    <div class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-700 flex items-center gap-2 shadow-xs select-none">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="font-medium">Auto-refresh: 30s</span>
+    </div>
+  </div>
+</form>
+
+<!-- 5. HIGH-DENSITY MONITORING DATA GRID -->
+<div class="px-6 pb-6 flex-1">
+  <div class="bg-white border border-[#E2E8F0] rounded-xl overflow-hidden shadow-xs">
+    <div class="overflow-x-auto w-full">
+      <table class="w-full text-left border-collapse min-w-[1200px]">
+        <!-- Table Header -->
+        <thead>
+          <tr class="bg-[#F1F5F9] border-b border-slate-200 text-slate-600 font-mono text-[11px] uppercase tracking-wider">
+            <th class="py-3 px-4 w-36 font-semibold" scope="col">WAKTU (WIB)</th>
+            <th class="py-3 px-4 w-56 font-semibold" scope="col">WILAYAH KEMENDAGRI</th>
+            <th class="py-3 px-4 w-44 font-semibold" scope="col">JENIS BENCANA</th>
+            <th class="py-3 px-4 font-semibold" scope="col">RINGKASAN &amp; RUJUKAN MEDIA</th>
+            <th class="py-3 px-4 w-36 font-semibold" scope="col">STATUS</th>
+            <th class="py-3 px-4 w-48 font-semibold text-right" scope="col">AKSI</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-xs">
+          {% for ev in events %}
+          <tr class="hover:bg-slate-50/80 transition-colors" id="row-{{ ev.id_kejadian }}">
+            <!-- Col 1: WAKTU -->
+            <td class="py-3 px-4 align-top">
+              <div class="flex flex-col font-mono">
+                <span class="font-bold text-slate-900 text-xs">{{ ev.waktu_kejadian_riil|date:"d/m/Y"|default:"09/10/2026" }}</span>
+                <span class="text-slate-600 text-[11px]">{{ ev.waktu_kejadian_riil|date:"H:i"|default:"13:45" }} WIB</span>
+                <span class="mt-1 inline-block text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded w-fit">
+                  {{ ev.relative_time }}
+                </span>
+              </div>
+            </td>
+
+            <!-- Col 2: WILAYAH KEMENDAGRI -->
+            <td class="py-3 px-4 align-top">
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-1 font-mono text-[10px] text-slate-500">
+                  <span>Kode Kemendagri:</span>
+                  <span class="font-bold text-slate-700 bg-slate-100 px-1 py-0.5 rounded">{{ ev.wilayah.id_wilayah|default:"-" }}</span>
+                </div>
+                <div class="text-xs text-slate-700 leading-relaxed font-medium">
+                  {{ ev.wilayah.hierarchy_display|default:"Dalam Verifikasi Lapangan" }}
+                </div>
+              </div>
+            </td>
+
+            <!-- Col 3: JENIS BENCANA -->
+            <td class="py-3 px-4 align-top">
+              {% if 'BANJIR' in ev.jenis_bencana|upper %}
+              <span class="bg-blue-100 text-blue-800 border border-blue-200 font-bold text-xs px-2.5 py-1 rounded-md inline-flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">water_drop</span>
+                <span>{{ ev.jenis_bencana|upper }}</span>
+              </span>
+              {% elif 'KARHUTLA' in ev.jenis_bencana|upper %}
+              <span class="bg-orange-100 text-orange-800 border border-orange-200 font-bold text-xs px-2.5 py-1 rounded-md inline-flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">local_fire_department</span>
+                <span>{{ ev.jenis_bencana|upper }}</span>
+              </span>
+              {% elif 'LONGSOR' in ev.jenis_bencana|upper %}
+              <span class="bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs px-2.5 py-1 rounded-md inline-flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">landslide</span>
+                <span>{{ ev.jenis_bencana|upper }}</span>
+              </span>
+              {% else %}
+              <span class="bg-purple-100 text-purple-800 border border-purple-200 font-bold text-xs px-2.5 py-1 rounded-md inline-flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">waves</span>
+                <span>{{ ev.jenis_bencana|upper }}</span>
+              </span>
+              {% endif %}
+            </td>
+
+            <!-- Col 4: RINGKASAN & RUJUKAN MEDIA -->
+            <td class="py-3 px-4 align-top">
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center flex-wrap gap-1 mb-0.5">
+                  {% if ev.is_isu_bantuan %}
+                  <span class="bg-[#DC2626] text-white text-[11px] font-bold px-2 py-0.5 rounded mr-1">
+                    🚨 ISU BANTUAN
+                  </span>
+                  {% elif ev.status_verifikasi == 'HOAKS' %}
+                  <span class="bg-red-100 text-red-700 border border-red-200 text-[11px] font-bold px-2 py-0.5 rounded mr-1">
+                    🚨 DISINFORMASI PUBLIK
+                  </span>
+                  {% endif %}
+
+                  <a href="javascript:void(0)" onclick="openVerificationModal({{ ev.id_kejadian }})" class="text-[#2563EB] font-semibold hover:underline text-sm leading-snug">
+                    {{ ev.lead_article.judul|default:ev.jenis_bencana }}
+                  </a>
+                </div>
+
+                <p class="text-slate-600 text-xs line-clamp-2 leading-relaxed">
+                  {{ ev.lead_article.isi_ringkas|default:ev.kondisi_mutakhir }}
+                </p>
+
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="bg-slate-100 text-slate-700 border border-slate-200 font-medium text-[11px] px-2 py-0.5 rounded inline-flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[13px] text-slate-500">newspaper</span>
+                    <span>{{ ev.lead_article.nama_portal|default:"Pusdalops BNPB" }} (Lead)</span>
+                  </span>
+                  {% if ev.additional_sources_count > 0 %}
+                  <span class="text-slate-500 text-[11px] font-medium">+{{ ev.additional_sources_count }} Portal</span>
+                  {% endif %}
+                </div>
+              </div>
+            </td>
+
+            <!-- Col 5: STATUS (Dropdown Dinamis Berubah Warna) -->
+            <td class="py-3 px-4 align-top">
+              <select id="status-select-{{ ev.id_kejadian }}" onchange="quickUpdateStatus({{ ev.id_kejadian }}, this.value)"
+                      class="{% if ev.status_verifikasi == 'PENDING' %}bg-[#FEF3C7] text-[#B45309] border-[#FDE68A]{% elif ev.status_verifikasi == 'TERVERIFIKASI' %}bg-[#D1FAE5] text-[#047857] border-[#A7F3D0]{% else %}bg-[#FEE2E2] text-[#B91C1C] border-[#FECACA]{% endif %} border rounded-md font-semibold text-xs py-1 px-2.5 cursor-pointer focus:outline-none shadow-xs">
+                <option value="PENDING" {% if ev.status_verifikasi == 'PENDING' %}selected{% endif %}>Pending ▼</option>
+                <option value="TERVERIFIKASI" {% if ev.status_verifikasi == 'TERVERIFIKASI' %}selected{% endif %}>Terverifikasi</option>
+                <option value="HOAKS" {% if ev.status_verifikasi == 'HOAKS' %}selected{% endif %}>Hoaks</option>
+              </select>
+            </td>
+
+            <!-- Col 6: AKSI -->
+            <td class="py-3 px-4 align-top text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="openMergeModal({{ ev.id_kejadian }}, '{{ ev.lead_article.judul|escapejs }}')" class="border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 text-xs px-2.5 py-1.5 rounded font-medium shadow-xs transition-colors cursor-pointer" type="button" title="Gabungkan berita susulan">
+                  🔗 Merge
+                </button>
+                <button onclick="openVerificationModal({{ ev.id_kejadian }})" class="bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs px-3 py-1.5 rounded font-semibold flex items-center gap-1 shadow-xs transition-colors cursor-pointer" type="button">
+                  <span class="material-symbols-outlined text-[14px]">edit_note</span>
+                  <span>Edit &amp; Verifikasi</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="py-12 text-center text-slate-500 font-medium">
+              <div class="flex flex-col items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-4xl text-slate-300">inbox</span>
+                <span>Nihil data kejadian untuk kriteria filter ini.</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================================== -->
+<!-- MODAL PARTIALS (MODULARIZED DIALOGS)                                   -->
+<!-- ====================================================================== -->
+{% include "dashboard/modals/manual_entry_modal.html" %}
+
+{% include "dashboard/modals/verification_modal.html" %}
+
+{% include "dashboard/modals/merge_modal.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Modal Handlers
+  function openManualModal() {
+    document.getElementById('modalTambahManual').classList.remove('hidden');
+  }
+  function closeManualModal() {
+    document.getElementById('modalTambahManual').classList.add('hidden');
+  }
+
+  function openVerificationModal(pk) {
+    const form = document.getElementById('verificationForm');
+    form.action = `/event/${pk}/update/`;
+
+    // Fetch data from API
+    fetch(`/api/event/${pk}/`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        const ev = data.event;
+        document.getElementById('vModalBadgeCode').innerText = `FORM VERIFIKASI #${ev.kode_kejadian}`;
+        document.getElementById('vLeadPortal').innerText = ev.lead_portal || 'Pusdalops';
+        document.getElementById('vLeadJudul').innerText = ev.lead_judul;
+        document.getElementById('vLeadLink').href = ev.lead_url || '#';
+        document.getElementById('vKodeKemendagri').innerText = `Kode: ${ev.wilayah.id_wilayah || '-'}`;
+        
+        if (ev.wilayah.id_wilayah) {
+          const sel = document.getElementById('vSelectWilayah');
+          sel.value = ev.wilayah.id_wilayah;
+        }
+
+        document.getElementById('vDate').value = ev.waktu_kejadian_riil || '';
+        document.getElementById('vTime').value = ev.waktu_kejadian_jam ? `${ev.waktu_kejadian_jam} WIB` : '';
+
+        // Casualties
+        const kor = ev.dampak_korban || {};
+        document.getElementById('vMeninggal').value = kor.meninggal || 0;
+        document.getElementById('vLuka').value = (kor.luka_ringan || 0) + (kor.luka_berat || 0);
+        document.getElementById('vHilang').value = kor.hilang || 0;
+        document.getElementById('vMengungsi').value = kor.mengungsi || 0;
+
+        // Damage
+        const dmg = ev.dampak_kerusakan || {};
+        document.getElementById('vRumah').value = dmg.rumah_terendam || 0;
+        document.getElementById('vLuas').value = dmg.luas_ha || 0;
+
+        document.getElementById('vUpaya').value = ev.upaya || '';
+        document.getElementById('vKondisi').value = ev.kondisi_mutakhir || '';
+
+        // Status radio
+        if (ev.status_verifikasi === 'TERVERIFIKASI') {
+          document.getElementById('radio-verified').checked = true;
+        } else if (ev.status_verifikasi === 'HOAKS') {
+          document.getElementById('radio-hoax').checked = true;
+        } else {
+          document.getElementById('radio-pending').checked = true;
+        }
+
+        document.getElementById('modalVerifikasi').classList.remove('hidden');
+      }
+    });
+  }
+
+  function closeVerificationModal() {
+    document.getElementById('modalVerifikasi').classList.add('hidden');
+  }
+
+  function openMergeModal(pk, title) {
+    document.getElementById('mergeSourceId').value = pk;
+    document.getElementById('mergeSourceTitle').innerText = title;
+    document.getElementById('modalMerge').classList.remove('hidden');
+  }
+
+  function closeMergeModal() {
+    document.getElementById('modalMerge').classList.add('hidden');
+  }
+
+  // Quick Inline Status Update via Dropdown
+  function quickUpdateStatus(pk, newStatus) {
+    const formData = new FormData();
+    formData.append('status', newStatus);
+
+    fetch(`/event/${pk}/status-quick/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        showToast(`Status kejadian berhasil diperbarui ke: ${data.new_status}`, "Status Diperbarui", "task_alt");
+        // Update select visual styling
+        const selectEl = document.getElementById(`status-select-${pk}`);
+        if (selectEl) {
+          selectEl.className = 'border rounded-md font-semibold text-xs py-1 px-2.5 cursor-pointer focus:outline-none shadow-xs ' +
+            (newStatus === 'PENDING' ? 'bg-[#FEF3C7] text-[#B45309] border-[#FDE68A]' :
+             newStatus === 'TERVERIFIKASI' ? 'bg-[#D1FAE5] text-[#047857] border-[#A7F3D0]' :
+             'bg-[#FEE2E2] text-[#B91C1C] border-[#FECACA]');
+        }
+      }
+    })
+    .catch(() => {
+      showToast("Gagal memperbarui status.", "Error", "error");
+    });
+  }
+
+  // Keyboard shortcut: ESC to close modals
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      closeManualModal();
+      closeVerificationModal();
+      closeMergeModal();
+    }
+  });
+</script>
+{% endblock %}
